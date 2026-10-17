@@ -32,6 +32,12 @@ e.g. "Premium SaaS — operational, engineer-trusted, Vercel-core meets terminal
 e.g. "Editorial luxury — typographer's portfolio, italic serif eyebrows, generous whitespace."
 e.g. "70s retro maximalist — warm palette, broken grid, tactile texture overlay."
 
+## Stack
+
+- Framework: Next.js <major> (App Router)   ← or "SvelteKit <major> / Svelte 5", "Angular <major> (standalone, zoneless)" — read the versions from package.json
+- Styling: Tailwind v4
+- Package manager: pnpm
+
 ## Dials
 
 - DESIGN_VARIANCE: 8 / 10  (1 = perfect symmetry, 10 = artsy chaos)
@@ -43,7 +49,7 @@ e.g. "70s retro maximalist — warm palette, broken grid, tactile texture overla
 - Display: Geist (variable, weights 400-700)
 - Body: Geist
 - Mono: Geist Mono
-- Loaded via: `next/font/google`
+- Loaded via: `next/font/google`   ← or Fontsource (`@fontsource-variable/geist`) on Svelte / Angular
 - Optical features enabled: `font-feature-settings: "ss01", "cv11"`
 
 Banned in this project: Inter, Roboto, Arial, system-ui, serif on dashboards.
@@ -86,7 +92,8 @@ Always tint shadows toward bg hue. No pure-black drops.
 - Easing fallback (CSS): `cubic-bezier(0.16, 1, 0.3, 1)`
 - Banned: linear easing, bounce/elastic, animating width/height
 
-Library: framer-motion@12.x (or motion/react if migrated)
+Library: motion@<major> (`motion/react` on React; vanilla `motion` helpers on Svelte / Angular)
+Enter/leave: motion variants (React) / `animate.enter` + `--spring-*` CSS (Angular) / `in:`/`out:` + spring easings (Svelte)
 
 ## Layout
 
@@ -99,9 +106,9 @@ Library: framer-motion@12.x (or motion/react if migrated)
 
 ## Component inventory
 
-shadcn: Button, Card, Dialog, DropdownMenu, Input
-21st.dev: navbar pattern, pricing pattern (customized to tokens above)
-React Bits: Aurora background (hero only), BlurText (case-study reveals)
+Primitives (shadcn / shadcn-svelte / Spartan): Button, Card, Dialog, DropdownMenu, Input
+21st.dev: navbar pattern, pricing pattern (customized to tokens above; ported on Svelte / Angular)
+React Bits: Aurora background (hero only), BlurText (case-study reveals; ported on Svelte / Angular)
 Custom: LogViewer mockup, BentoCard, MetricRow
 
 ## Project-specific bans

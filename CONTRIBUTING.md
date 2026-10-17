@@ -9,7 +9,7 @@ A markdown-only Claude Code skill. No build step, no runtime, no dependencies. T
 ## Local setup
 
 ```bash
-git clone https://github.com/Shawnchee/frontend-god-mode.git
+git clone https://github.com/quinnjr/frontend-god-mode.git
 cd frontend-god-mode
 ```
 
@@ -31,7 +31,8 @@ cp -r ~/path/to/cloned/frontend-god-mode/frontend-god-mode/* .claude/skills/fron
 - New aesthetic profiles in `references/` (e.g., a deeper brutalist guide, a print/poster reference, a mobile-first reference)
 - New rows in the anti-slop catalog — but only with a *concrete reason* the pattern is bad and a *specific replacement*
 - More font pairings in `typography.md` with named contexts (don't just add fonts; show when to use them)
-- Real Framer Motion / GSAP / Three.js patterns we don't yet cover, with full code examples
+- Real Motion / GSAP / Three.js patterns we don't yet cover, with full code examples — for every framework in `references/frameworks/`
+- New framework guides (e.g., `frameworks/vue.md`) that implement every pattern the existing ones cover
 - Bug fixes for contradictions between references (we've already had one between `bento-engine.md` and `layout.md` — find more)
 - Free-font fallback updates as the type ecosystem changes
 
@@ -40,7 +41,8 @@ cp -r ~/path/to/cloned/frontend-god-mode/frontend-god-mode/* .claude/skills/fron
 - Adding generic options (e.g., "Inter is fine if used carefully" — no, Inter stays banned)
 - Rephrasing existing rules to be softer
 - Accessibility shortcuts. The a11y checklist only grows; it doesn't shrink.
-- Brand-specific hacks (e.g., "for shadcn projects, do X differently"). Keep the skill framework-agnostic where possible.
+- Brand-specific hacks (e.g., "for shadcn projects, do X differently"). Shared references stay framework-agnostic (plain HTML markup, CSS, vanilla `motion`); framework-specific code goes only in `references/frameworks/<framework>.md`.
+- A pattern added for one framework only. If it goes in `react.md`, it goes in `svelte.md` and `angular.md` too.
 
 ## Style guide
 
@@ -109,7 +111,7 @@ A "bug" in this skill is one of:
 - A contradiction between two references
 - A rule the skill mandates that produces visibly worse output than ignoring it
 - A trigger keyword in `SKILL.md`'s description that's missing (the skill doesn't auto-fire on a prompt it should)
-- A factual error (wrong Tailwind syntax, broken Framer Motion API, paid font listed as free)
+- A factual error (wrong Tailwind syntax, broken Motion / Angular / Svelte API, paid font listed as free)
 
 Open an issue with the prompt that exposed it, the actual output, and the expected output.
 

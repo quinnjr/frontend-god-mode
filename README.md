@@ -1,12 +1,14 @@
 # Frontend God Mode
 
-A Claude Code skill that consolidates all the famous frontend design skills — UI/UX Pro Max, Framer Motion, 21st.dev Magic, React Bits, Impeccable, Anthropic's frontend-design, design-taste-frontend — into one master skill that forces production-grade taste and bans the 24 AI tells that make generated UIs look generated.
+A Claude Code skill that consolidates all the famous frontend design skills — UI/UX Pro Max, Framer Motion, 21st.dev Magic, React Bits, Impeccable, Anthropic's frontend-design, design-taste-frontend — into one master skill that forces production-grade taste and bans the 24 AI tells that make generated UIs look generated. Works in **React / Next.js, Svelte / SvelteKit, and Angular**: the design rules are shared, and each framework gets its own implementation guide.
+
+> **A framework-agnostic edition of [frontend-god-mode](https://github.com/Shawnchee/frontend-god-mode) by [Shawn Chee](https://github.com/Shawnchee).** The design philosophy, rules, references and before/after test are Shawn's original work. This independent edition generalizes the skill beyond React: shared references are framework-neutral, and React, Svelte and Angular each get an implementation guide. It's maintained separately and isn't affiliated with or endorsed by the original project.
 
 **No more generic AI output.** No more Inter + purple gradients + 3-card feature rows.
 
 ## Without vs With
 
-Same prompt. Same Next.js project. Same model. One shot each — no iterative refinement.
+Same prompt. Same Next.js project. Same model. One shot each — no iterative refinement. (From the original project's test.)
 
 | Without skill | With skill |
 |:---:|:---:|
@@ -20,7 +22,7 @@ Centered hero + 4 equal cards + round numbers + real-brand logos vs asymmetric h
 
 ```bash
 # Install for Claude Code (project-local)
-npx skills add Shawnchee/frontend-god-mode -a claude-code
+npx skills add quinnjr/frontend-god-mode -a claude-code
 
 # Restart Claude Code, then in any frontend prompt — done.
 ```
@@ -50,7 +52,7 @@ You'll know it fired when Claude opens with a one-line aesthetic statement (e.g.
 ## Prerequisites
 
 - **Claude Code** — installed and signed in
-- **Node 18+** — only needed when generated code imports npm packages (Framer Motion, shadcn, etc.)
+- **Node 18+** — only needed when generated code imports npm packages (Motion, shadcn, etc.)
 - **(Optional) 21st.dev API key** — free, only needed if you want Claude to pull from 21st.dev's component library. Get it at https://21st.dev/magic/console
 
 The skill itself is just markdown files. **No API keys, no installs, no background services required to use the skill on its own.** Keys and packages only matter when you opt in to specific integrations.
@@ -59,17 +61,19 @@ The skill itself is just markdown files. **No API keys, no installs, no backgrou
 
 ## What this fetches at runtime
 
-**The skill: nothing.** It's ~70KB of plain markdown that Claude reads when you give it a frontend task. No HTTP calls, no telemetry.
+**The skill: nothing.** It's ~120KB of plain markdown that Claude reads when you give it a frontend task. No HTTP calls, no telemetry.
 
 **Libraries the skill writes code against (only fetch when YOU run them):**
 
 | Integration         | API key?            | Cost  | Fetches when                         |
 |---------------------|---------------------|-------|--------------------------------------|
 | The skill itself    | No                  | Free  | Never — it's just markdown           |
-| Framer Motion       | No                  | Free  | `npm install framer-motion`          |
-| React Bits          | No                  | Free  | `npx shadcn add @react-bits/...`     |
-| shadcn/ui           | No                  | Free  | `npx shadcn init`                    |
-| **21st.dev Magic**  | **Yes (free tier)** | Free  | Claude calls the MCP server          |
+| Motion              | No                  | Free  | `<pm> add motion` (all frameworks)   |
+| React Bits          | No                  | Free  | `npx shadcn add @react-bits/...` (React; ported elsewhere) |
+| shadcn/ui           | No                  | Free  | `npx shadcn init` (React)            |
+| shadcn-svelte       | No                  | Free  | `npx shadcn-svelte init` (Svelte)    |
+| Spartan UI          | No                  | Free  | `ng g @spartan-ng/cli:ui` (Angular)  |
+| **21st.dev Magic**  | **Yes (free tier)** | Free  | Claude calls the MCP server (React output; ported elsewhere) |
 | UI/UX Pro Max       | No                  | Free  | Optional secondary skill (skippable) |
 
 ---
@@ -82,19 +86,19 @@ Works with 45+ agents. **Always pass `-a <agent>`** — without it, `skills.sh` 
 
 ```bash
 # Claude Code, project-local (current project only)
-npx skills add Shawnchee/frontend-god-mode -a claude-code
+npx skills add quinnjr/frontend-god-mode -a claude-code
 
 # Claude Code, global (all projects)
-npx skills add Shawnchee/frontend-god-mode -a claude-code -g
+npx skills add quinnjr/frontend-god-mode -a claude-code -g
 
 # Other agents
-npx skills add Shawnchee/frontend-god-mode -a cursor
-npx skills add Shawnchee/frontend-god-mode -a windsurf
-npx skills add Shawnchee/frontend-god-mode -a codex
-npx skills add Shawnchee/frontend-god-mode -a gemini
+npx skills add quinnjr/frontend-god-mode -a cursor
+npx skills add quinnjr/frontend-god-mode -a windsurf
+npx skills add quinnjr/frontend-god-mode -a codex
+npx skills add quinnjr/frontend-god-mode -a gemini
 
 # CI-friendly (no prompts)
-npx skills add Shawnchee/frontend-god-mode -g -a claude-code -y
+npx skills add quinnjr/frontend-god-mode -g -a claude-code -y
 ```
 
 **Already installed without `-a` and ended up in `.agents/skills/`?** Just move it:
@@ -108,7 +112,7 @@ mv ~/.agents/skills/frontend-god-mode ~/.claude/skills/frontend-god-mode
 ### Manual
 
 ```bash
-git clone https://github.com/Shawnchee/frontend-god-mode.git
+git clone https://github.com/quinnjr/frontend-god-mode.git
 ```
 
 Copy the skill folder for your agent:
@@ -120,6 +124,7 @@ Copy the skill folder for your agent:
 | Windsurf           | `.windsurf/skills/`                    | `~/.windsurf/skills/`        |
 | Codex / OpenCode   | `.codex/skills/`                       | `~/.codex/skills/`           |
 | Gemini CLI         | `.gemini/skills/`                      | `~/.gemini/skills/`          |
+| Kiro               | `.kiro/skills/`                        | `~/.kiro/skills/` (IDE only) |
 | Copilot            | `.github/copilot-instructions.md`      | —                            |
 | Antigravity        | Project config directory               | —                            |
 
@@ -136,10 +141,22 @@ Restart your editor after installing.
 ### One-line install script
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Shawnchee/frontend-god-mode/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/quinnjr/frontend-god-mode/main/install.sh | bash
 ```
 
 Installs globally for Claude Code. Restart after.
+
+### Kiro install script
+
+```bash
+# Global (~/.kiro/skills/) — every workspace, Kiro IDE only
+curl -fsSL https://raw.githubusercontent.com/quinnjr/frontend-god-mode/main/install-kiro.sh | bash
+
+# Workspace (./.kiro/skills/) — run from your project root; works in Kiro IDE and Kiro CLI
+curl -fsSL https://raw.githubusercontent.com/quinnjr/frontend-god-mode/main/install-kiro.sh | bash -s -- --project
+```
+
+Kiro's default agent picks the skill up automatically. Custom agents need it added to their `resources`: `"skill://.kiro/skills/frontend-god-mode/SKILL.md"` (workspace) or `"skill://~/.kiro/skills/frontend-god-mode/SKILL.md"` (global).
 
 ---
 
@@ -168,7 +185,7 @@ If it didn't fire automatically, prompt: `/frontend-god-mode build me a hero sec
 
 | Symptom                                 | Fix                                                                 |
 |-----------------------------------------|---------------------------------------------------------------------|
-| Skill installed to `.agents/skills/` instead of `.claude/skills/` | You forgot `-a claude-code`. Either re-run `npx skills add Shawnchee/frontend-god-mode -a claude-code`, or move the folder: `mv .agents/skills/frontend-god-mode .claude/skills/`. |
+| Skill installed to `.agents/skills/` instead of `.claude/skills/` | You forgot `-a claude-code`. Either re-run `npx skills add quinnjr/frontend-god-mode -a claude-code`, or move the folder: `mv .agents/skills/frontend-god-mode .claude/skills/`. |
 | Skill doesn't auto-trigger              | Prompt explicitly: `/frontend-god-mode <your task>` or "use the frontend-god-mode skill to..." |
 | Skill files not found                   | `ls ~/.claude/skills/frontend-god-mode/SKILL.md` — confirm the path. Re-run install with `-a claude-code`. |
 | Listed but behavior not applied         | Fully restart Claude Code — close the terminal, don't just `/clear` or start a new chat. |
@@ -254,10 +271,11 @@ To run the install wizard for the underlying tools:
 Every time you build, the skill:
 
 1. **Picks an aesthetic direction** before coding (brutalist / editorial / luxury / playful / etc.)
-2. **Loads only relevant references** for the task at hand
-3. **Routes you to component libraries** when appropriate (21st.dev, React Bits, shadcn)
-4. **Bans 24 AI tells** — Inter, purple gradients, John Doe, 3-card rows, h-screen, etc.
-5. **Runs a pre-flight checklist** before reporting "done"
+2. **Detects your framework** (React, Svelte, Angular) and package manager, and writes idiomatic code for it
+3. **Loads only relevant references** for the task at hand
+4. **Routes you to component libraries** when appropriate (21st.dev, React Bits, shadcn / shadcn-svelte / Spartan)
+5. **Bans 24 AI tells** — Inter, purple gradients, John Doe, 3-card rows, h-screen, etc.
+6. **Runs a pre-flight checklist** before reporting "done"
 
 ## The 5 hard rules
 
@@ -307,19 +325,25 @@ frontend-god-mode/                       # repo root
 │   └── references/
 │       ├── typography.md                # Approved fonts, banned defaults, free fallbacks
 │       ├── color.md                     # OKLCH palettes, anti-purple rules, maximalist exception
-│       ├── motion.md                    # Framer Motion + spring physics + perpetual motion
+│       ├── motion.md                    # Spring physics, CSS springs, shared vanilla motion helpers
 │       ├── layout.md                    # Asymmetric heroes, dashboard hardening, dvh
-│       ├── components.md                # React Bits + 21st.dev + shadcn integration
+│       ├── components.md                # Component libraries per framework + porting rules
 │       ├── bento-engine.md              # Modern SaaS bento grid (marketing only)
 │       ├── accessibility.md             # WCAG AA contrast, focus, keyboard, semantic HTML
 │       ├── copy.md                      # Banned vocab, headline patterns, empty/error states
 │       ├── anti-slop.md                 # 24 AI tells, pre-flight checklist
-│       └── setup-walkthrough.md         # First-run install wizard
+│       ├── setup-walkthrough.md         # First-run install wizard
+│       └── frameworks/
+│           ├── react.md                 # React / Next.js: RSC, motion/react, next/font
+│           ├── svelte.md                # Svelte 5 / SvelteKit: runes, attachments, transitions
+│           └── angular.md               # Angular: signals, OnPush, animate.enter, SSR
 ├── dist/
 │   └── frontend-god-mode.skill          # Packaged installable (zip)
 ├── examples/
-│   └── test-prompts.md                  # 5 test prompts with expected outputs
-├── install.sh                           # One-line installer
+│   └── test-prompts.md                  # 7 test prompts with expected outputs
+├── install.sh                           # One-line installer (Claude Code)
+├── install-kiro.sh                      # One-line installer (Kiro)
+├── LICENSE                              # MIT (original © Shawn Chee)
 └── README.md
 ```
 
@@ -393,12 +417,14 @@ npx skills list
 
 ---
 
-## Stack credits
+## Credits
 
-This skill consolidates and builds on:
+**Original skill:** [frontend-god-mode](https://github.com/Shawnchee/frontend-god-mode) by [Shawn Chee](https://github.com/Shawnchee). The full original commit history is preserved in this repository.
+
+The original consolidates and builds on:
 
 - [UI/UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)
-- [Framer Motion](https://www.framer.com/motion/)
+- [Motion](https://motion.dev)
 - [21st.dev Magic](https://21st.dev/magic)
 - [React Bits](https://reactbits.dev)
 - [Anthropic frontend-design](https://github.com/anthropics/skills)
@@ -411,4 +437,4 @@ PRs welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md) for what we accept (sha
 
 ## License
 
-MIT.
+MIT — see [LICENSE](./LICENSE). Original work © 2026 Shawn Chee; framework-agnostic edition © 2026 Joseph R. Quinn.

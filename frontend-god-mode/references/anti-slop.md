@@ -64,21 +64,40 @@ If your output has any of these, it screams "AI generated."
 .bad-10 { height: 100vh; }  /* use 100dvh */
 ```
 
-## Forbidden React Patterns
+## Forbidden Framework Patterns
+
+```html
+<!-- ❌ Banned in every framework -->
+<div class="grid grid-cols-3 gap-4">  <!-- banned for "features" sections -->
+  <Card /> <Card /> <Card />
+</div>
+```
+
+```ts
+window.addEventListener('scroll', ...)  // use motion's scroll() / useScroll
+animate(el, { width: '100%' })           // animate transform/opacity only
+```
 
 ```tsx
-/* ❌ Banned */
+// ❌ React
 const [mouseX, setMouseX] = useState(0);  // re-renders kill mobile — use useMotionValue
+```
 
-<div className="grid grid-cols-3 gap-4">  // banned for "features" sections
-  <Card />
-  <Card />
-  <Card />
-</div>
+```ts
+// ❌ Angular
+readonly mouseX = signal(0);              // pointer position in a signal — use the magnetic() helper
+constructor() { matchMedia('...'); }      // DOM access outside afterNextRender breaks SSR
+@for (item of items(); track $index)      // reorderable lists need a stable track key
+```
 
-<motion.div animate={{ width: '100%' }} />  // animate transform/opacity only
+```svelte
+<!-- ❌ Svelte -->
+<script>
+  let mouseX = $state(0);  // pointer position in state — use the magnetic() helper
+</script>
 
-window.addEventListener('scroll', ...)  // use useScroll
+<li in:fly={{ y: 20 }}>    <!-- page-load reveal via transition never plays on SSR'd content -->
+{#each items as item}      <!-- unkeyed each can't animate:flip -->
 ```
 
 ## State Coverage Required
@@ -94,14 +113,14 @@ Generic AI output skips empty/error states. **Don't.**
 
 ## Architecture Verifications
 
-- [ ] No `'use client'` on Server Components that could be RSC
-- [ ] All Framer Motion components have `'use client'` at top
+- [ ] Framework detected from `package.json` and its `frameworks/<framework>.md` pre-flight passes
 - [ ] Tailwind v3 vs v4 syntax matches `package.json`
 - [ ] `package.json` checked before importing any 3rd party lib
-- [ ] No `useEffect` without cleanup
+- [ ] Every animation, interval, listener and observer has teardown
+- [ ] No browser APIs touched during SSR
 - [ ] No animations on `width`/`height`
-- [ ] Memoized perpetual-motion components
-- [ ] No mixing GSAP + Framer in same component tree
+- [ ] Perpetual-motion components isolated (React `memo`, Angular `OnPush`, Svelte leaf component)
+- [ ] No mixing GSAP + motion on the same element tree
 
 ## The Final Pre-Flight (Read Before Saying "Done")
 
@@ -134,7 +153,7 @@ MOTION
 [ ] Only transform/opacity animated
 [ ] List reveals staggered
 [ ] Reduced-motion respected
-[ ] useEffect cleanup present
+[ ] Animation teardown present
 
 CONTENT
 [ ] Realistic names (no John Doe)
@@ -151,7 +170,7 @@ STATE
 [ ] Success feedback present
 
 ARCHITECTURE
-[ ] 'use client' only where needed
+[ ] Framework pre-flight passes (frameworks/<framework>.md)
 [ ] No state for hover position
 [ ] No window.scroll listeners
 [ ] Tailwind version syntax correct

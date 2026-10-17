@@ -27,7 +27,7 @@ When using OKLCH neutrals:
 
 ## Focus Rings (Critical)
 
-shadcn defaults to `ring-sky-500` or `ring-blue-500` — which collides with our color rules. Override globally:
+shadcn (and its ports, shadcn-svelte and Spartan) defaults to `ring-sky-500` or `ring-blue-500` — which collides with our color rules. Override globally:
 
 ```css
 :root {
@@ -69,13 +69,13 @@ Don't use `<div>` for everything.
 | `<header>`     | Page or section intro                        |
 | `<footer>`     | Page or section outro                        |
 | `<h1>`–`<h6>`  | Sequential heading hierarchy (no skipping)   |
-| `<dialog>`     | Modals (or Radix Dialog with proper roles)   |
+| `<dialog>`     | Modals (or Radix / Bits UI / Spartan dialog with proper roles) |
 
 ## Screen Reader Hygiene
 
 - **Images:** `alt` text describes purpose, not appearance. Decorative images get `alt=""`.
-- **Icons in buttons:** wrap in `<span className="sr-only">Add to cart</span>` or use `aria-label`.
-- **Form inputs:** ALWAYS associate with `<label htmlFor>` or `aria-labelledby`. Placeholders are NOT labels.
+- **Icons in buttons:** wrap in `<span class="sr-only">Add to cart</span>` or use `aria-label`.
+- **Form inputs:** ALWAYS associate with `<label for>` (`htmlFor` in JSX) or `aria-labelledby`. Placeholders are NOT labels.
 - **Loading states:** `aria-busy="true"` + `aria-live="polite"` on the parent.
 - **Toasts / notifications:** `role="status"` + `aria-live="polite"` for non-urgent, `role="alert"` for urgent.
 
@@ -95,13 +95,13 @@ Don't use `<div>` for everything.
 
 ## Reduced Motion
 
-Already covered in motion.md, but double-check:
+Already covered in motion.md, but double-check that JS-driven motion checks the preference:
 
-```tsx
-import { useReducedMotion } from 'framer-motion';
-const reduced = useReducedMotion();
-// Disable or shorten animations when reduced is true
-```
+- **React:** `useReducedMotion()` from `motion/react`
+- **Angular:** `prefersReducedMotion()` from the shared motion helpers
+- **Svelte:** `prefersReducedMotion.current` from `svelte/motion`
+
+Disable or shorten animations when it's true.
 
 ## Common AI Accessibility Failures
 

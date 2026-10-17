@@ -60,17 +60,13 @@ Match the pairing to the aesthetic direction. **Do not cross pairings.** Do not 
 - **`text-center` on long paragraphs.** Left-aligned is more readable. Center only short hero copy or eyebrows.
 - **Ignoring optical kerning.** Display headers need `tracking-tighter` or `tracking-tight`.
 
-## Loading Fonts (Next.js)
+## Loading Fonts
 
-```ts
-// app/layout.tsx
-import { Geist, Geist_Mono } from 'next/font/google';
-// or for non-Google fonts, use a self-hosted local font
-import localFont from 'next/font/local';
+Always self-host. Never ship a Google Fonts `<link>` as the production loading strategy.
 
-const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
-const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-mono' });
-```
+- **Next.js:** `next/font` — see `frameworks/react.md`.
+- **Everything else (Angular, SvelteKit, Vite):** Fontsource packages imported in the global stylesheet, mapped to `--font-sans` / `--font-mono` in Tailwind's `@theme` — see `frameworks/angular.md` or `frameworks/svelte.md`.
+- **Paid / non-Fontsource fonts:** `@font-face` with `font-display: swap` pointing at self-hosted `woff2` files.
 
 ## Font Licensing & Free Fallbacks
 

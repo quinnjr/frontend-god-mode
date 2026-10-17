@@ -46,16 +46,18 @@ The modern way to show "3-5 things" without 3 equal cards.
 
 ### Structure
 
-```tsx
-<div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-4 max-w-7xl mx-auto p-8">
-  <div className="md:col-span-2 md:row-span-2 rounded-[2.5rem] bg-white p-10 border border-zinc-200/50">
-    {/* Hero card — biggest */}
+Markup is shown as plain HTML (`className` in JSX).
+
+```html
+<div class="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-4 max-w-7xl mx-auto p-8">
+  <div class="md:col-span-2 md:row-span-2 rounded-[2.5rem] bg-white p-10 border border-zinc-200/50">
+    <!-- Hero card — biggest -->
   </div>
-  <div className="rounded-[2.5rem] bg-white p-8 border border-zinc-200/50">
-    {/* Top-right */}
+  <div class="rounded-[2.5rem] bg-white p-8 border border-zinc-200/50">
+    <!-- Top-right -->
   </div>
-  <div className="rounded-[2.5rem] bg-white p-8 border border-zinc-200/50">
-    {/* Bottom-right */}
+  <div class="rounded-[2.5rem] bg-white p-8 border border-zinc-200/50">
+    <!-- Bottom-right -->
   </div>
 </div>
 ```
@@ -92,8 +94,8 @@ Use Tailwind's spacing scale, but vary purposefully:
 
 Any asymmetric / high-variance layout MUST collapse cleanly below `md:`:
 
-```tsx
-<div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-4 px-4 md:px-10 py-12 md:py-24">
+```html
+<div class="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-4 px-4 md:px-10 py-12 md:py-24">
 ```
 
 - All `grid-cols-N` becomes `grid-cols-1`

@@ -1,6 +1,6 @@
 ---
 name: frontend-god-mode
-description: Use this skill whenever the user asks to build, create, design, redesign, polish, audit, animate, improve, fix, or "make prettier/cleaner/nicer" ANY frontend interface — landing pages, dashboards, portfolios, SaaS apps, marketing sites, components, hero sections, navbars, footers, pricing tables, posters, mobile UIs, or any web/React/Next.js/Vue/Svelte UI work. Also use when the user mentions Tailwind, shadcn, Framer Motion, 21st.dev, React Bits, animations, typography, color palettes, design taste, "make it look premium," "fix the look," or "make this less generic." Enforces production-grade design discipline (typography, color, motion, layout, accessibility, copy) and bans generic AI aesthetics like Inter font, purple-to-blue gradients, three-card feature rows, h-screen heroes, John Doe placeholder data, and "elevate/seamless/unleash" filler copy. Generates a project DESIGN.md to lock in tokens across sessions. Consolidates rules from UI/UX Pro Max, Framer Motion, 21st.dev Magic, React Bits, Anthropic frontend-design, Impeccable, and design-taste-frontend.
+description: Use this skill whenever the user asks to build, create, design, redesign, polish, audit, animate, improve, fix, or "make prettier/cleaner/nicer" ANY frontend interface — landing pages, dashboards, portfolios, SaaS apps, marketing sites, components, hero sections, navbars, footers, pricing tables, posters, mobile UIs — in React/Next.js, Svelte/SvelteKit, Angular, Vue, or any web UI. Also use when the user mentions Tailwind, shadcn, shadcn-svelte, Spartan, Motion/Framer Motion, 21st.dev, React Bits, animations, typography, color palettes, design taste, "make it look premium," "fix the look," or "make this less generic." Enforces production-grade design discipline (typography, color, motion, layout, accessibility, copy) and bans generic AI aesthetics like Inter font, purple-to-blue gradients, three-card feature rows, h-screen heroes, John Doe placeholder data, and "elevate/seamless/unleash" filler copy. Generates a project DESIGN.md to lock in tokens across sessions.
 ---
 
 # Frontend God Mode
@@ -29,6 +29,17 @@ Ask yourself: brutalist, maximalist chaos, retro-futuristic, organic, luxury/ref
 
 If you see no `package.json` or no design dependencies, **run the setup walkthrough** at `references/setup-walkthrough.md` first.
 
+**Detect the framework from `package.json`** and load its implementation file. Every code pattern in the other references is implemented there:
+
+| `package.json` has               | Load                                 |
+|----------------------------------|--------------------------------------|
+| `@angular/core`                  | `references/frameworks/angular.md`   |
+| `svelte` or `@sveltejs/kit`      | `references/frameworks/svelte.md`    |
+| `react` (Next.js, Vite, Remix…)  | `references/frameworks/react.md`     |
+| anything else (Vue, Solid, Astro, plain HTML) | none — use the vanilla helpers in `references/motion.md`, wrapped in that framework's mount/unmount lifecycle |
+
+Detect the package manager from the lockfile (`pnpm-lock.yaml`, `yarn.lock`, `bun.lock`, else npm) and use it for every install command.
+
 **Then check for `DESIGN.md` at the project root.** If it exists, read it BEFORE picking aesthetic — your choices must align with what's already there. If it doesn't exist and you're about to do meaningful UI work, plan to create it (see `references/design-doc.md` and step 5 below).
 
 ### 3. Route to the right reference
@@ -47,6 +58,7 @@ Load only what's relevant for the task — don't dump every reference into conte
 | Accessibility, contrast, focus, keyboard        | `references/accessibility.md`                       |
 | Headlines, button labels, empty states, errors  | `references/copy.md`                                |
 | Generating / updating the project's DESIGN.md   | `references/design-doc.md`                          |
+| Writing any component code                      | `references/frameworks/<framework>.md` (always)     |
 | Final pass before "done"                        | `references/anti-slop.md` (always — pre-flight)     |
 
 **Important distinction:** "SaaS bento" (marketing feature row) and "data dashboard" are different problems. Bento-engine.md applies only to the marketing context. Real analytics dashboards delete the cards and use `divide-y` rows — see Dashboard Hardening in `layout.md`.
@@ -81,12 +93,13 @@ These override everything. If you catch yourself doing any of them, stop and rew
 
 Unless the user specifies otherwise:
 
-- **Framework:** React or Next.js. Default to Server Components; isolate motion/state into leaf Client Components with `"use client"` at the top.
-- **Styling:** Tailwind. Check `package.json` for v3 vs v4 — never mix syntaxes. For v4, do NOT use `tailwindcss` plugin in `postcss.config.js`; use `@tailwindcss/postcss`.
-- **Icons:** `@phosphor-icons/react` or `@radix-ui/react-icons`. Standardize stroke width globally (1.5 or 2.0). **Never emojis.**
+- **Framework:** use whatever the project already uses — never port a project to a different framework. New project with no stated preference: Next.js. Framework rules (React Server Components, Angular `OnPush` + `afterNextRender`, Svelte runes + attachments) live in `references/frameworks/<framework>.md`.
+- **Styling:** Tailwind. Check `package.json` for v3 vs v4 — never mix syntaxes. For v4, do NOT use the `tailwindcss` plugin in PostCSS: use `@tailwindcss/vite` in Vite projects (SvelteKit, Vite + React) and `@tailwindcss/postcss` elsewhere (Next.js, Angular).
+- **Motion:** `motion` everywhere — `motion/react` in React, the vanilla `motion` API (via the shared helpers in `motion.md`) in Svelte and Angular. Same spring numbers in every framework.
+- **Icons:** Phosphor or Radix — `@phosphor-icons/react` / `phosphor-svelte` / `@ng-icons/phosphor-icons`. Standardize weight / stroke globally. **Never emojis.**
 - **Layout containers:** `max-w-[1400px] mx-auto` or `max-w-7xl`. CSS Grid over flex math. Mobile collapses to single column with `px-4` below `md:`.
 - **Dependencies:** Before importing any 3rd party lib, check `package.json`. If missing, output the install command first. Never assume.
-- **Shadcn:** Allowed, but never default. Customize radii, colors, shadows.
+- **shadcn (and its ports, shadcn-svelte and Spartan):** Allowed, but never default. Customize radii, colors, shadows.
 - **Images:** `https://picsum.photos/seed/{string}/800/600` for placeholders. Never broken Unsplash URLs.
 
 ## When User Asks "Just Build Me X"
@@ -134,9 +147,13 @@ Run the full pre-flight from `references/anti-slop.md` plus the items below. The
 - [ ] Spring physics on interactive motion (no linear easing for UI motion)
 - [ ] No bounce / elastic
 - [ ] Only `transform`/`opacity` animated
-- [ ] Perpetual loops isolated in memoized leaf Client Components
-- [ ] `useEffect` animations have cleanup
-- [ ] `prefers-reduced-motion` respected
+- [ ] Perpetual loops are CSS keyframes or isolated leaf components (React `memo`, Angular `OnPush`)
+- [ ] Every animation, interval, listener and observer has teardown
+- [ ] `prefers-reduced-motion` respected (CSS guard + JS check)
+
+**Framework**
+- [ ] `references/frameworks/<framework>.md` pre-flight passes
+- [ ] No browser APIs touched during SSR
 
 **Accessibility**
 - [ ] Body text contrast ≥ 4.5:1 (WCAG AA)

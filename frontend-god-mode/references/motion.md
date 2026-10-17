@@ -2,64 +2,115 @@
 
 The line between $500 and $10,000 is motion. Static AI sites are obvious. Animated AI sites with linear easing and bounce-everywhere are even worse. This reference enforces premium motion.
 
+The rules and numbers here apply to every framework. The framework-specific implementation of each pattern (React `motion/react`, Angular, Svelte) lives in `references/frameworks/<framework>.md` — load it alongside this file.
+
 ## The Four Hard Rules
 
-1. **No linear easing on UI motion.** Use spring physics or premium cubic-bezier. **Exception:** infinite seamless carousels and shimmer/marquee loops use `ease: 'linear'` — they need constant velocity to feel right. Linear is banned only for entrance, exit, hover, and tap motion.
+1. **No linear easing on UI motion.** Use spring physics or premium cubic-bezier. **Exception:** infinite seamless carousels and shimmer/marquee loops use linear timing — they need constant velocity to feel right. Linear is banned only for entrance, exit, hover, and tap motion. (The CSS `linear()` *function* used to encode springs below is not linear easing.)
 2. **No `width`/`height`/`top`/`left` animation.** Only `transform` and `opacity` — they're hardware-accelerated.
 3. **No bounce/elastic easing.** It's dated. Use spring with `damping: 20` for an overshoot that feels modern.
-4. **Perpetual animations live in their own memoized Client Component.** Never trigger parent re-renders.
+4. **Perpetual animations live in their own isolated leaf component.** They must never cause the parent (or the framework's change detection) to re-render. Prefer CSS keyframes for loops — they cost zero framework work.
 
 ## The Spring Defaults
 
-When using Framer Motion (or `motion`), apply these spring physics across the board:
+Every framework uses these exact physics. In JS, pass them to `motion` (React: `motion/react`; Angular/Svelte: the vanilla `motion` package):
 
 ```ts
 const springSnappy = { type: 'spring', stiffness: 400, damping: 30 };  // buttons, taps
 const springSmooth = { type: 'spring', stiffness: 100, damping: 20 };  // standard motion
 const springDramatic = { type: 'spring', stiffness: 60, damping: 18 }; // hero reveals
+const springOvershoot = { type: 'spring', stiffness: 300, damping: 12 }; // badges, notifications
 ```
 
-For CSS-only motion, use:
+### CSS springs (same physics, zero JS)
+
+For CSS transitions, keyframes, Angular `animate.enter`/`animate.leave`, and Svelte CSS transitions, use the same springs pre-sampled into `linear()` curves. Put these in the global stylesheet:
 
 ```css
-transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);  /* "easeOutExpo" — premium feel */
+:root {
+  --spring-smooth: linear(0, 0.028, 0.089, 0.169, 0.256, 0.344, 0.432, 0.509, 0.58, 0.642, 0.697, 0.745, 0.786, 0.821, 0.851, 0.876, 0.898, 0.916, 0.931, 0.943, 0.953, 0.961, 0.968, 0.974, 0.979, 0.983, 0.986, 0.989, 0.991, 0.992, 0.994, 1);
+  --spring-smooth-duration: 750ms;
+  --spring-snappy: linear(0, 0.037, 0.115, 0.218, 0.332, 0.446, 0.561, 0.658, 0.743, 0.814, 0.873, 0.919, 0.955, 0.982, 1.001, 1.013, 1.022, 1.026, 1.027, 1.026, 1.024, 1.021, 1.018, 1.015, 1.012, 1.01, 1.007, 1.005, 1.004, 1.002, 1.001, 1);
+  --spring-snappy-duration: 410ms;
+  --spring-dramatic: linear(0, 0.044, 0.133, 0.24, 0.346, 0.441, 0.529, 0.604, 0.667, 0.722, 0.767, 0.806, 0.839, 0.865, 0.888, 0.907, 0.922, 0.935, 0.946, 0.955, 0.963, 0.969, 0.974, 0.978, 0.982, 0.985, 0.988, 0.99, 0.991, 0.993, 0.994, 1);
+  --spring-dramatic-duration: 1290ms;
+  --spring-overshoot: linear(0, 0.129, 0.402, 0.731, 1.011, 1.211, 1.302, 1.301, 1.234, 1.138, 1.039, 0.963, 0.916, 0.903, 0.914, 0.941, 0.972, 1, 1.02, 1.029, 1.029, 1.023, 1.014, 1.004, 0.997, 0.992, 0.99, 0.992, 0.994, 0.997, 1, 1);
+  --spring-overshoot-duration: 920ms;
+}
+
+.card { transition: transform var(--spring-smooth-duration) var(--spring-smooth); }
+```
+
+The durations are the time each spring takes to settle within 0.5% of its target; the visible motion finishes well before that.
+
+For simple hover/state transitions, the premium cubic-bezier is fine:
+
+```css
+.interactive {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);  /* "easeOutExpo" */
+}
+```
+
+## Shared Motion Helpers (Angular, Svelte, vanilla)
+
+React uses `motion/react` components directly (see `frameworks/react.md`). Every other framework uses these framework-free helpers built on the vanilla `motion` package, wrapped in the framework's lifecycle (Angular directive, Svelte attachment). Create `motion.ts` (SvelteKit: `src/lib/motion.ts`; Angular: `src/app/lib/motion.ts`):
+
+```ts
+import { animate, inView, stagger } from 'motion';
+
+export const springSnappy = { type: 'spring', stiffness: 400, damping: 30 } as const;
+export const springSmooth = { type: 'spring', stiffness: 100, damping: 20 } as const;
+export const springDramatic = { type: 'spring', stiffness: 60, damping: 18 } as const;
+export const springOvershoot = { type: 'spring', stiffness: 300, damping: 12 } as const;
+
+export function prefersReducedMotion(): boolean {
+  return typeof window !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/** Staggered reveal of every [data-reveal] child when `root` scrolls into view. Returns teardown. */
+export function reveal(root: Element): () => void {
+  const items = root.querySelectorAll<HTMLElement>('[data-reveal]');
+  if (!items.length || prefersReducedMotion()) return () => {};
+  let controls: ReturnType<typeof animate> | undefined;
+  const stop = inView(root, () => {
+    controls = animate(items, { opacity: [0, 1], y: [20, 0] }, { ...springSmooth, delay: stagger(0.08, { startDelay: 0.1 }) });
+  }, { amount: 0.2 });
+  return () => { stop(); controls?.stop(); };
+}
+
+/** Magnetic pull toward the cursor. Writes transforms directly — never framework state. Returns teardown. */
+export function magnetic(el: HTMLElement, strength = 0.3): () => void {
+  if (prefersReducedMotion()) return () => {};
+  const spring = { type: 'spring', stiffness: 200, damping: 20 } as const;
+  const move = (e: PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
+    const r = el.getBoundingClientRect();
+    animate(el, { x: (e.clientX - r.left - r.width / 2) * strength, y: (e.clientY - r.top - r.height / 2) * strength }, spring);
+  };
+  const leave = () => animate(el, { x: 0, y: 0 }, spring);
+  el.addEventListener('pointermove', move);
+  el.addEventListener('pointerleave', leave);
+  return () => {
+    el.removeEventListener('pointermove', move);
+    el.removeEventListener('pointerleave', leave);
+  };
+}
+```
+
+Pair `reveal()` with this CSS so items start hidden only when JS will actually reveal them (no flash, no invisible content without JS or with reduced motion):
+
+```css
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  [data-reveal] { opacity: 0; }
+}
 ```
 
 ## Page Load — Staggered Orchestration
 
-Never mount lists or grids instantly. Stagger them.
+Never mount lists or grids instantly. Stagger them: `0.08s` between children, `0.1s` initial delay, `springSmooth`, rising `20px`.
 
-### Framer Motion pattern
-
-```tsx
-'use client';
-import { motion } from 'framer-motion';
-
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.1 }
-  }
-};
-
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 20 } }
-};
-
-export function StaggeredGrid({ items }) {
-  return (
-    <motion.div variants={container} initial="hidden" animate="show" className="grid gap-4">
-      {items.map((it, i) => (
-        <motion.div key={i} variants={item}>{it.title}</motion.div>
-      ))}
-    </motion.div>
-  );
-}
-```
-
-**Critical:** Parent variants and children MUST live in the same Client Component tree. If data is fetched async, pass it into a centralized motion wrapper.
+- **React:** parent/child `variants` with `staggerChildren` — see `frameworks/react.md`.
+- **Angular / Svelte:** mark children `data-reveal` and run `reveal()` on the parent — see the framework file.
 
 ### CSS-only fallback
 
@@ -67,7 +118,7 @@ export function StaggeredGrid({ items }) {
 .stagger-item {
   opacity: 0;
   transform: translateY(20px);
-  animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: rise var(--spring-smooth-duration) var(--spring-smooth) forwards;
   animation-delay: calc(var(--index, 0) * 80ms);
 }
 
@@ -78,184 +129,119 @@ export function StaggeredGrid({ items }) {
 
 ## Magnetic Button Pattern
 
-Buttons that pull subtly toward the cursor. **CRITICAL:** Use `useMotionValue` + `useTransform`. Never `useState` — it triggers re-renders on every mouse move and collapses mobile performance.
+Buttons that pull subtly toward the cursor. **CRITICAL:** the pointer position must never go through framework state (React `useState`, an Angular signal bound in a template, a Svelte `$state` that re-renders a component). Write transforms directly via motion values or `animate()`. State updates on every mouse move collapse mobile performance.
 
-```tsx
-'use client';
-import { useRef } from 'react';
-import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
-
-export function MagneticButton({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLButtonElement>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const sx = useSpring(x, { stiffness: 200, damping: 20 });
-  const sy = useSpring(y, { stiffness: 200, damping: 20 });
-
-  function handleMove(e: React.MouseEvent) {
-    const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return;
-    x.set((e.clientX - rect.left - rect.width / 2) * 0.3);
-    y.set((e.clientY - rect.top - rect.height / 2) * 0.3);
-  }
-
-  function handleLeave() { x.set(0); y.set(0); }
-
-  return (
-    <motion.button
-      ref={ref}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      style={{ x: sx, y: sy }}
-      className="..."
-    >
-      {children}
-    </motion.button>
-  );
-}
-```
+- **React:** `useMotionValue` + `useSpring` — see `frameworks/react.md`.
+- **Angular / Svelte:** `magnetic()` helper above, wrapped in a directive / attachment.
 
 ## Tactile Feedback (`:active`)
 
-Every interactive element needs a physical "push" feel:
+Every interactive element needs a physical "push" feel. This works in every framework:
 
 ```css
 button:active { transform: translateY(1px) scale(0.98); }
 ```
 
-In Framer:
-
-```tsx
-<motion.button whileTap={{ scale: 0.98, y: 1 }}>...</motion.button>
-```
+React can use `whileTap={{ scale: 0.98, y: 1 }}` instead.
 
 ## Layout Transitions
 
-Use `layout` and `layoutId` for smooth re-ordering and shared element transitions.
+Re-ordering lists, expand-to-modal morphs, and shared elements must animate position (FLIP: measure → update → invert → play with `transform`). Never let items teleport.
 
-```tsx
-<motion.div layout layoutId={`card-${id}`} transition={springSmooth}>
-  {content}
-</motion.div>
-```
+- **React:** `layout` / `layoutId`.
+- **Svelte:** `animate:flip` on keyed `{#each}` children.
+- **Angular:** measure-and-play FLIP with `afterNextRender` + `animate()`.
 
-This handles list reordering, expand-to-modal morphs, and shared element transitions for free.
+Each pattern is in its framework file.
 
 ## Perpetual Micro-Interactions
 
-When `MOTION_INTENSITY > 5`, embed continuous loops in standard components. Examples:
+When `MOTION_INTENSITY > 5`, embed continuous loops in standard components. Write them as CSS keyframes. That makes them framework-agnostic and free (no JS, no re-renders, no change detection):
 
-### Pulse status dot
+```css
+/* Pulse status dot */
+@keyframes pulse { 50% { transform: scale(1.15); opacity: 0.7; } }
+.pulse { animation: pulse 2s ease-in-out infinite; }
 
-```tsx
-<motion.div
-  animate={{ scale: [1, 1.15, 1], opacity: [1, 0.7, 1] }}
-  transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-  className="w-2 h-2 rounded-full bg-emerald-500"
-/>
-```
+/* Float */
+@keyframes float { 50% { transform: translateY(-8px); } }
+.float { animation: float 3s ease-in-out infinite; }
 
-### Shimmer loading
+/* Shimmer loading — linear is correct here (constant velocity) */
+@keyframes shimmer { to { background-position: -200% 0; } }
+.shimmer {
+  background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.1), transparent) 0 0 / 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
 
-```tsx
-<motion.div
-  animate={{ backgroundPosition: ['0% 0%', '100% 0%'] }}
-  transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
-  className="bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent)] bg-[length:200%_100%]"
-/>
-```
-
-### Float
-
-```tsx
-<motion.div
-  animate={{ y: [0, -8, 0] }}
-  transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-/>
+/* Carousel / marquee (infinite seamless) — render the items twice, translate by -50% */
+@keyframes marquee { to { transform: translateX(-50%); } }
+.marquee { display: flex; width: max-content; animation: marquee 30s linear infinite; }
+.marquee:hover { animation-play-state: paused; }
 ```
 
 ### Typewriter (multi-prompt cycling)
 
-Cycle through 3-4 prompts with blinking cursor + 1.5s pause between cycles. Used in hero search bars or AI command inputs.
-
-### Carousel (infinite seamless)
-
-```tsx
-<motion.div
-  animate={{ x: ['0%', '-100%'] }}
-  transition={{ repeat: Infinity, duration: 30, ease: 'linear' }}
-  className="flex"
->
-  {[...items, ...items].map(...)}
-</motion.div>
-```
+Cycle through 3-4 prompts with blinking cursor + 1.5s pause between cycles. Used in hero search bars or AI command inputs. The cycling timer is the one perpetual loop that needs JS. Keep it in its own leaf component and clear the timer on teardown.
 
 ## Scroll-Driven Effects
 
-Use Framer's `useScroll` + `useTransform`. Never `window.addEventListener('scroll')` — kills performance.
+Use motion's `scroll()` (vanilla) or `useScroll` (React). Both use the native ScrollTimeline where available. Never `window.addEventListener('scroll')` — kills performance.
 
-```tsx
-const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
-const y = useTransform(scrollYProgress, [0, 1], [0, -100]);
-return <motion.div style={{ y }} />;
+```ts
+import { animate, scroll } from 'motion';
+const stop = scroll(animate(el, { y: [0, -100] }), { target: el, offset: ['start end', 'end start'] });
+// call stop() on teardown
 ```
 
-For complex scrolltelling beyond Framer (parallax sequences, ScrollTrigger pinning), use **GSAP**. **Never mix GSAP with Framer in the same component tree** — wrap GSAP in strict `useEffect` cleanup blocks and isolate to full-page sections or canvas backgrounds.
+For complex scrolltelling beyond motion (parallax sequences, ScrollTrigger pinning), use **GSAP**. **Never mix GSAP and motion on the same element tree.** Isolate GSAP to full-page sections or canvas backgrounds, create it in a `gsap.context()` scoped to the section root, and call `ctx.revert()` on teardown.
 
 ## Performance Guards
 
 - **DOM cost:** Apply grain/noise filters only to fixed `pointer-events-none` overlays. Never on scrolling containers.
 - **`will-change: transform`** sparingly — only on elements actively animating.
-- **Always cleanup** `useEffect` animations:
-  ```tsx
-  useEffect(() => {
-    const ctx = gsap.context(() => { /* ... */ }, ref);
-    return () => ctx.revert();
-  }, []);
-  ```
-- **Memoize perpetual-motion components** with `React.memo` and isolate them.
-- **`<AnimatePresence>`** wraps lists with mount/unmount animations. Always include `mode="popLayout"` if items can reorder.
+- **Teardown everything.** Every `animate()` / `inView()` / `scroll()` / interval / listener / GSAP context is undone when its component is destroyed. React: `useEffect` return. Angular: `DestroyRef.onDestroy`. Svelte: return from the attachment / `$effect` / `onMount`.
+- **Browser-only code runs after mount.** Never touch `window`, `matchMedia`, or `getBoundingClientRect` during SSR. React: client components + effects. Angular: `afterNextRender`. Svelte: attachments / `$effect` / `onMount`.
+- **Isolate perpetual-motion components** so they never re-render their parents (React `memo`, Angular `OnPush`, Svelte gets this for free with fine-grained reactivity).
+- **Exit animations** for items that unmount: React `<AnimatePresence mode="popLayout">`, Angular `animate.leave`, Svelte `out:` transitions.
 
 ## Reduced Motion
 
-Always respect:
+Always respect it. The global CSS guard covers CSS transitions, keyframes, Angular `animate.enter`/`animate.leave` and Svelte CSS transitions:
 
 ```css
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
 ```
 
-In Framer Motion:
-
-```tsx
-import { useReducedMotion } from 'framer-motion';
-const reduced = useReducedMotion();
-const transition = reduced ? { duration: 0 } : springSmooth;
-```
+JS-driven motion runs through the Web Animations API or inline styles, which that guard doesn't touch, so it must check the preference itself. React: `useReducedMotion()`. Angular: `prefersReducedMotion()` from the shared helpers. Svelte: `prefersReducedMotion.current` from `svelte/motion`.
 
 ## Anti-Patterns
 
 - ❌ Animating `width`, `height`, `top`, `left` — repaints, not GPU
-- ❌ `useState` for hover position — re-renders kill mobile
+- ❌ Framework state for hover/pointer position — re-renders kill mobile
 - ❌ Linear easing on UI — feels robotic
 - ❌ Bounce / elastic — feels dated (2014 mobile vibes)
 - ❌ Custom mouse cursor replacements — outdated, breaks accessibility
-- ❌ Mixing GSAP + Framer in the same component
-- ❌ `scrollY` listeners on window — use `useScroll`
-- ❌ Animation duration over 600ms for UI motion (heroes can go longer)
+- ❌ Mixing GSAP + motion on the same element tree
+- ❌ `scroll` listeners on window — use `scroll()` / `useScroll`
+- ❌ JS timers for loops CSS keyframes can do
+- ❌ Animation duration over 600ms for UI motion (heroes can go longer; spring settle tails don't count)
 
 ## Final Motion Audit
 
 - [ ] Spring physics on all interactive motion
 - [ ] No `width`/`height` animations
 - [ ] List reveals are staggered (not instant mount)
-- [ ] Perpetual loops are in memoized leaf Client Components
-- [ ] Reduced-motion respected
-- [ ] `useEffect` cleanup on every animation hook
+- [ ] Perpetual loops are CSS keyframes or isolated leaf components
+- [ ] Reduced-motion respected (CSS guard + JS check)
+- [ ] Every animation, observer, interval and listener has teardown
+- [ ] No browser APIs touched during SSR
 - [ ] No bounce/elastic easing
 - [ ] No custom mouse cursors
-- [ ] All `motion.*` components have `'use client'` at top of file
+- [ ] Framework checklist in `frameworks/<framework>.md` passes
