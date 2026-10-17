@@ -124,6 +124,7 @@ Copy the skill folder for your agent:
 | Windsurf           | `.windsurf/skills/`                    | `~/.windsurf/skills/`        |
 | Codex / OpenCode   | `.codex/skills/`                       | `~/.codex/skills/`           |
 | Gemini CLI         | `.gemini/skills/`                      | `~/.gemini/skills/`          |
+| Kiro               | `.kiro/skills/`                        | `~/.kiro/skills/` (IDE only) |
 | Copilot            | `.github/copilot-instructions.md`      | —                            |
 | Antigravity        | Project config directory               | —                            |
 
@@ -144,6 +145,18 @@ curl -fsSL https://raw.githubusercontent.com/quinnjr/frontend-god-mode/main/inst
 ```
 
 Installs globally for Claude Code. Restart after.
+
+### Kiro install script
+
+```bash
+# Global (~/.kiro/skills/) — every workspace, Kiro IDE only
+curl -fsSL https://raw.githubusercontent.com/quinnjr/frontend-god-mode/main/install-kiro.sh | bash
+
+# Workspace (./.kiro/skills/) — run from your project root; works in Kiro IDE and Kiro CLI
+curl -fsSL https://raw.githubusercontent.com/quinnjr/frontend-god-mode/main/install-kiro.sh | bash -s -- --project
+```
+
+Kiro's default agent picks the skill up automatically. Custom agents need it added to their `resources`: `"skill://.kiro/skills/frontend-god-mode/SKILL.md"` (workspace) or `"skill://~/.kiro/skills/frontend-god-mode/SKILL.md"` (global).
 
 ---
 
@@ -328,7 +341,8 @@ frontend-god-mode/                       # repo root
 │   └── frontend-god-mode.skill          # Packaged installable (zip)
 ├── examples/
 │   └── test-prompts.md                  # 7 test prompts with expected outputs
-├── install.sh                           # One-line installer
+├── install.sh                           # One-line installer (Claude Code)
+├── install-kiro.sh                      # One-line installer (Kiro)
 ├── LICENSE                              # MIT (original © Shawn Chee)
 └── README.md
 ```
