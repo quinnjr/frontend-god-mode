@@ -65,7 +65,7 @@ Match the pairing to the aesthetic direction. **Do not cross pairings.** Do not 
 Always self-host. Never ship a Google Fonts `<link>` as the production loading strategy.
 
 - **Next.js:** `next/font` — see `frameworks/react.md`.
-- **Everything else (Angular, SvelteKit, Vite):** Fontsource packages imported in the global stylesheet, mapped to `--font-sans` / `--font-mono` in Tailwind's `@theme` — see `frameworks/angular.md` or `frameworks/svelte.md`.
+- **Everything else (Vue, Nuxt, SvelteKit, Angular, Astro, Vite):** Fontsource packages imported in the global stylesheet, mapped to `--font-sans` / `--font-mono` in Tailwind's `@theme` — see `frameworks/<framework>.md`.
 - **Paid / non-Fontsource fonts:** `@font-face` with `font-display: swap` pointing at self-hosted `woff2` files.
 
 ## Font Licensing & Free Fallbacks

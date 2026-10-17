@@ -89,6 +89,6 @@ else
 fi
 echo ""
 echo "Optional integrations (install when needed):"
-echo "  • Motion:         <pm> add motion   (React, Svelte, Angular)"
+echo "  • Motion:         <pm> add motion   (React, Vue, Svelte, Angular, Astro)"
 echo "  • React Bits:     npx shadcn@latest add @react-bits/<Component>   (React)"
 echo ""

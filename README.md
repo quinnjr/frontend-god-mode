@@ -1,8 +1,8 @@
 # Frontend God Mode
 
-A Claude Code skill that consolidates all the famous frontend design skills — UI/UX Pro Max, Framer Motion, 21st.dev Magic, React Bits, Impeccable, Anthropic's frontend-design, design-taste-frontend — into one master skill that forces production-grade taste and bans the 24 AI tells that make generated UIs look generated. Works in **React / Next.js, Svelte / SvelteKit, and Angular**: the design rules are shared, and each framework gets its own implementation guide.
+A Claude Code skill that consolidates all the famous frontend design skills — UI/UX Pro Max, Framer Motion, 21st.dev Magic, React Bits, Impeccable, Anthropic's frontend-design, design-taste-frontend — into one master skill that forces production-grade taste and bans the 24 AI tells that make generated UIs look generated. Works in **React / Next.js, Vue / Nuxt, Svelte / SvelteKit, Angular, and Astro**: the design rules are shared, and each framework gets its own implementation guide.
 
-> **A framework-agnostic edition of [frontend-god-mode](https://github.com/Shawnchee/frontend-god-mode) by [Shawn Chee](https://github.com/Shawnchee).** The design philosophy, rules, references and before/after test are Shawn's original work. This independent edition generalizes the skill beyond React: shared references are framework-neutral, and React, Svelte and Angular each get an implementation guide. It's maintained separately and isn't affiliated with or endorsed by the original project.
+> **A framework-agnostic edition of [frontend-god-mode](https://github.com/Shawnchee/frontend-god-mode) by [Shawn Chee](https://github.com/Shawnchee).** The design philosophy, rules, references and before/after test are Shawn's original work. This independent edition generalizes the skill beyond React: shared references are framework-neutral, and React, Vue, Svelte, Angular and Astro each get an implementation guide. It's maintained separately and isn't affiliated with or endorsed by the original project.
 
 **No more generic AI output.** No more Inter + purple gradients + 3-card feature rows.
 
@@ -61,7 +61,7 @@ The skill itself is just markdown files. **No API keys, no installs, no backgrou
 
 ## What this fetches at runtime
 
-**The skill: nothing.** It's ~120KB of plain markdown that Claude reads when you give it a frontend task. No HTTP calls, no telemetry.
+**The skill: nothing.** It's ~140KB of plain markdown that Claude reads when you give it a frontend task. No HTTP calls, no telemetry.
 
 **Libraries the skill writes code against (only fetch when YOU run them):**
 
@@ -71,6 +71,7 @@ The skill itself is just markdown files. **No API keys, no installs, no backgrou
 | Motion              | No                  | Free  | `<pm> add motion` (all frameworks)   |
 | React Bits          | No                  | Free  | `npx shadcn add @react-bits/...` (React; ported elsewhere) |
 | shadcn/ui           | No                  | Free  | `npx shadcn init` (React)            |
+| shadcn-vue          | No                  | Free  | `npx shadcn-vue init` (Vue)          |
 | shadcn-svelte       | No                  | Free  | `npx shadcn-svelte init` (Svelte)    |
 | Spartan UI          | No                  | Free  | `ng g @spartan-ng/cli:ui` (Angular)  |
 | **21st.dev Magic**  | **Yes (free tier)** | Free  | Claude calls the MCP server (React output; ported elsewhere) |
@@ -271,7 +272,7 @@ To run the install wizard for the underlying tools:
 Every time you build, the skill:
 
 1. **Picks an aesthetic direction** before coding (brutalist / editorial / luxury / playful / etc.)
-2. **Detects your framework** (React, Svelte, Angular) and package manager, and writes idiomatic code for it
+2. **Detects your framework** (React, Vue, Svelte, Angular, Astro) and package manager, and writes idiomatic code for it
 3. **Loads only relevant references** for the task at hand
 4. **Routes you to component libraries** when appropriate (21st.dev, React Bits, shadcn / shadcn-svelte / Spartan)
 5. **Bans 24 AI tells** — Inter, purple gradients, John Doe, 3-card rows, h-screen, etc.
@@ -335,12 +336,14 @@ frontend-god-mode/                       # repo root
 │       ├── setup-walkthrough.md         # First-run install wizard
 │       └── frameworks/
 │           ├── react.md                 # React / Next.js: RSC, motion/react, next/font
+│           ├── vue.md                   # Vue 3 / Nuxt: directives, <Transition>, <TransitionGroup>
 │           ├── svelte.md                # Svelte 5 / SvelteKit: runes, attachments, transitions
-│           └── angular.md               # Angular: signals, OnPush, animate.enter, SSR
+│           ├── angular.md               # Angular: signals, OnPush, animate.enter, SSR
+│           └── astro.md                 # Astro: zero-JS by default, islands, custom elements
 ├── dist/
 │   └── frontend-god-mode.skill          # Packaged installable (zip)
 ├── examples/
-│   └── test-prompts.md                  # 7 test prompts with expected outputs
+│   └── test-prompts.md                  # 9 test prompts with expected outputs
 ├── install.sh                           # One-line installer (Claude Code)
 ├── install-kiro.sh                      # One-line installer (Kiro)
 ├── LICENSE                              # MIT (original © Shawn Chee)

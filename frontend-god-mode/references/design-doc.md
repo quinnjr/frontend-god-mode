@@ -34,7 +34,7 @@ e.g. "70s retro maximalist — warm palette, broken grid, tactile texture overla
 
 ## Stack
 
-- Framework: Next.js <major> (App Router)   ← or "SvelteKit <major> / Svelte 5", "Angular <major> (standalone, zoneless)" — read the versions from package.json
+- Framework: Next.js <major> (App Router)   ← or "Nuxt <major> / Vue 3.5", "SvelteKit <major> / Svelte 5", "Angular <major> (standalone, zoneless)", "Astro <major> (+ Svelte islands)" — read the versions from package.json
 - Styling: Tailwind v4
 - Package manager: pnpm
 
@@ -49,7 +49,7 @@ e.g. "70s retro maximalist — warm palette, broken grid, tactile texture overla
 - Display: Geist (variable, weights 400-700)
 - Body: Geist
 - Mono: Geist Mono
-- Loaded via: `next/font/google`   ← or Fontsource (`@fontsource-variable/geist`) on Svelte / Angular
+- Loaded via: `next/font/google`   ← or Fontsource (`@fontsource-variable/geist`) on Vue / Svelte / Angular / Astro
 - Optical features enabled: `font-feature-settings: "ss01", "cv11"`
 
 Banned in this project: Inter, Roboto, Arial, system-ui, serif on dashboards.
@@ -92,8 +92,8 @@ Always tint shadows toward bg hue. No pure-black drops.
 - Easing fallback (CSS): `cubic-bezier(0.16, 1, 0.3, 1)`
 - Banned: linear easing, bounce/elastic, animating width/height
 
-Library: motion@<major> (`motion/react` on React; vanilla `motion` helpers on Svelte / Angular)
-Enter/leave: motion variants (React) / `animate.enter` + `--spring-*` CSS (Angular) / `in:`/`out:` + spring easings (Svelte)
+Library: motion@<major> (`motion/react` on React; vanilla `motion` helpers on Vue / Svelte / Angular / Astro)
+Enter/leave: motion variants (React) / `<Transition>` + `--spring-*` CSS (Vue) / `in:`/`out:` + spring easings (Svelte) / `animate.enter` + `--spring-*` CSS (Angular) / `animate()` + `hidden` (Astro)
 
 ## Layout
 
@@ -106,9 +106,9 @@ Enter/leave: motion variants (React) / `animate.enter` + `--spring-*` CSS (Angul
 
 ## Component inventory
 
-Primitives (shadcn / shadcn-svelte / Spartan): Button, Card, Dialog, DropdownMenu, Input
-21st.dev: navbar pattern, pricing pattern (customized to tokens above; ported on Svelte / Angular)
-React Bits: Aurora background (hero only), BlurText (case-study reveals; ported on Svelte / Angular)
+Primitives (shadcn / shadcn-vue / shadcn-svelte / Spartan): Button, Card, Dialog, DropdownMenu, Input
+21st.dev: navbar pattern, pricing pattern (customized to tokens above; ported outside React)
+React Bits: Aurora background (hero only), BlurText (case-study reveals; ported outside React)
 Custom: LogViewer mockup, BentoCard, MetricRow
 
 ## Project-specific bans

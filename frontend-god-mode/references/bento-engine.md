@@ -23,7 +23,7 @@ For modern SaaS dashboards and feature sections, this is your default architectu
 
 ## The Grid
 
-Markup is shown as plain HTML. In JSX write `className`; in Angular and Svelte templates it's `class` as shown. Card contents are framework components (see `frameworks/<framework>.md`).
+Markup is shown as plain HTML. In JSX write `className`; in Vue, Svelte, Angular and Astro templates it's `class` as shown. Card contents are framework components (see `frameworks/<framework>.md`).
 
 ```html
 <section class="bg-[var(--bg-subtle)] py-24">
@@ -54,7 +54,7 @@ Each card MUST have a perpetual micro-animation. These are the proven five:
 
 A vertical stack of items with infinite auto-sorting. Items swap positions with a spring layout animation (FLIP), never a jump. Simulates an AI prioritizing tasks.
 
-Implementation: React `layoutId`, Svelte `animate:flip`, Angular measure-and-play FLIP. Full component in `frameworks/<framework>.md`.
+Implementation: React `layoutId`, Vue `<TransitionGroup>`, Svelte `animate:flip`, Angular and Astro measure-and-play FLIP. Full component in `frameworks/<framework>.md`.
 
 ### 2. The Command Input
 
@@ -71,7 +71,7 @@ Each prompt: 2.5s typing → 1s pause → shimmer for 0.8s → fade out → next
 
 Scheduling / calendar interface with breathing status indicators. Notification badge pops in with overshoot spring (`damping: 12`), holds for 3s, vanishes.
 
-Implementation: React `<AnimatePresence>` + spring, Angular `animate.enter` with `--spring-overshoot`, Svelte `in:scale` with the `overshoot` easing. Full component in `frameworks/<framework>.md`.
+Implementation: React `<AnimatePresence>` + spring, Vue `<Transition>` and Angular `animate.enter` with `--spring-overshoot`, Svelte `in:scale` with the `overshoot` easing, Astro `animate()` with `springOvershoot`. Full component in `frameworks/<framework>.md`.
 
 ### 4. The Wide Data Stream
 
@@ -91,11 +91,11 @@ A document/text view that animates a staggered highlight sweeping across a parag
 
 ## Performance — Critical Rules
 
-- **Isolate every animated card** so it never re-renders the layout: React `memo` + its own Client Component, Angular `OnPush` component, Svelte its own component
+- **Isolate every animated card** so it never re-renders the layout: React `memo` + its own Client Component, Vue / Svelte its own component, Angular `OnPush` component, Astro custom element or CSS-only
 - **Each card lives in its OWN tiny component** — never put 3 perpetual loops in one component
-- **Dynamic lists animate exit and reorder** (React `<AnimatePresence mode="popLayout">`, Angular `animate.leave`, Svelte `out:` + `animate:flip`)
+- **Dynamic lists animate exit and reorder** (React `<AnimatePresence mode="popLayout">`, Vue `<TransitionGroup>`, Svelte `out:` + `animate:flip`, Angular `animate.leave`, Astro custom-element FLIP)
 - **No re-renders on the parent layout** when cards animate
-- **Clear every interval on teardown** (React `useEffect` return, Angular `DestroyRef`, Svelte `$effect` return)
+- **Clear every interval on teardown** (React `useEffect` return, Vue `onBeforeUnmount`, Svelte `$effect` return, Angular `DestroyRef`, Astro `disconnectedCallback`)
 
 ## Spring Defaults for Bento
 
