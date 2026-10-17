@@ -184,12 +184,13 @@ CSS guard from `motion.md` in the global stylesheet, plus `prefersReducedMotion(
 
 - **Intelligent List:** `IntelligentList.astro` above.
 - **Live Status:** a custom element that calls `showBadge` / `hideBadge` from an interval started in `connectedCallback` and cleared in `disconnectedCallback`.
-- **Wide Data Stream:** CSS `.marquee` from `motion.md` with `{[...metrics, ...metrics].map((m) => <MetricCard {...m} />)}`. No JS.
+- **Wide Data Stream:** CSS `.marquee` from `motion.md` with two identical groups — `<div class="flex gap-4 pr-4">{metrics.map((m) => <MetricCard {...m} />)}</div>` and the same group again with `aria-hidden="true"`. No JS.
 - **Command Input typewriter:** a custom element that writes `textContent` from a timer, cleared in `disconnectedCallback`.
+- **Contextual UI:** a `<reveal-group>` over the highlight spans plus a custom element that shows the toolbar with `animate()` and `springSnappy`.
 
 ## Fonts
 
-Self-host with Fontsource:
+Self-host with Fontsource. The example uses Geist — install and import the pairing you actually chose from `typography.md` (Fontsource package names are `@fontsource-variable/<family>` for variable fonts, `@fontsource/<family>` otherwise). Fontshare and paid fonts: self-host the woff2 with `@font-face`.
 
 ```bash
 <pm> add @fontsource-variable/geist @fontsource-variable/geist-mono
@@ -243,11 +244,15 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({ vite: { plugins: [tailwindcss()] } });
 ```
 
+**Tailwind v3 projects:** keep the existing `tailwind.config.*` + PostCSS setup; put tokens in `theme.extend` instead of `@theme` (`colors: { accent: 'var(--accent)' }`). For opacity modifiers, store the channels (`--accent: 0.52 0.17 258`) and map `accent: 'oklch(var(--accent) / <alpha-value>)'`.
+
 ## Setup Install
 
 ```bash
-<pm> add motion @fontsource-variable/geist astro-icon @iconify-json/ph
+<pm> add motion astro-icon @iconify-json/ph
 ```
+
+Fonts are installed separately, after the pairing is chosen (see Fonts).
 
 `<pm>` is the project's package manager: the lockfile decides it (`pnpm-lock.yaml` → pnpm, `yarn.lock` → yarn, `bun.lock` → bun, else npm).
 

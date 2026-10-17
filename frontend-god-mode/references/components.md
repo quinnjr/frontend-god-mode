@@ -7,18 +7,18 @@ Don't build everything from scratch. Pull production-quality building blocks fro
 | Framework         | Structural primitives                   | Icons                           | React Bits / 21st.dev |
 |-------------------|-----------------------------------------|---------------------------------|-----------------------|
 | React / Next.js   | shadcn/ui (Radix)                       | `@phosphor-icons/react`         | Use directly          |
-| Vue / Nuxt        | shadcn-vue (Reka UI)                    | `@phosphor-icons/vue`           | Port                  |
-| Svelte / SvelteKit| shadcn-svelte (Bits UI)                 | `phosphor-svelte`               | Port                  |
+| Vue / Nuxt        | shadcn-vue (Reka UI)                    | `@phosphor-icons/vue`           | Vue Bits (`@vue-bits`); port 21st.dev |
+| Svelte / SvelteKit| shadcn-svelte (Bits UI)                 | `phosphor-svelte`               | Svelte Bits (`@svelte-bits`); port 21st.dev |
 | Angular           | Spartan UI (brain + helm), Angular CDK  | `@ng-icons/phosphor-icons`      | Port                  |
 | Astro             | `.astro` + Tailwind; native `<dialog>` / popover; the island framework's library for complex primitives | `astro-icon` + `@iconify-json/ph` | Island via `@astrojs/react` if installed, else port |
 
-**Porting rule:** React Bits and 21st.dev emit React. In non-React projects, never install React to use them (Astro projects that already have `@astrojs/react` can use them as islands). Read the generated code, keep the Tailwind classes (they transfer 1:1), and rewrite the logic: JSX → template syntax, hooks → refs / runes / signals / custom elements, `motion.*` props → the shared motion helpers and framework patterns in `frameworks/<framework>.md`.
+**Porting rule:** React Bits and 21st.dev emit React. Vue and Svelte have community ports of React Bits in the shadcn registry (`@vue-bits/<Name>` via `shadcn-vue`, `@svelte-bits/<Name>` via `shadcn-svelte`) — check there first. Otherwise, in non-React projects, never install React to use them (Astro projects that already have `@astrojs/react` can use them as islands). Read the generated code, keep the Tailwind classes (they transfer 1:1), and rewrite the logic: JSX → template syntax, hooks → refs / runes / signals / custom elements, `motion.*` props → the shared motion helpers and framework patterns in `frameworks/<framework>.md`.
 
 ## The Libraries
 
 ### 1. React Bits — Animated components
 
-**110+ components** — text animations, UI elements, animated backgrounds. Lightweight, tree-shakeable, copy-paste ready. Four variants: JS-CSS, JS-TW, TS-CSS, TS-TW. React only; port for other frameworks (prefer the JS-CSS or TS-TW variant as the port source — they have the fewest React-specific dependencies).
+**110+ components** — text animations, UI elements, animated backgrounds. Lightweight, tree-shakeable, copy-paste ready. Four variants: JS-CSS, JS-TW, TS-CSS, TS-TW. React only. Vue and Svelte: use the Vue Bits / Svelte Bits registry ports when the component exists there; otherwise port by hand (prefer the JS-CSS or TS-TW variant as the source — they have the fewest React-specific dependencies).
 
 #### When to use React Bits
 - Animated text effects (text scramble, kinetic marquee, gradient stroke, blur reveal)
@@ -45,9 +45,9 @@ shadcn@latest add @react-bits/MagicBento-TS-TW
 
 Use these when designing background atmosphere or texture overlays. SVG, clip-path, video and image exports work in every framework.
 
-### 2. 21st.dev Magic — Production components via MCP
+### 2. 21st.dev — Production components via MCP
 
-100+ polished React components — buttons, navbars, hero sections, cards, footers — all pre-designed. Connected as an MCP server.
+A catalog of polished React components — buttons, navbars, hero sections, cards, footers — searchable from the 21st MCP server (formerly "Magic MCP"). Component search and retrieval work on the free tier; hosted AI generation (`generate`) needs AI access enabled on the account.
 
 #### When to use 21st.dev
 - Standard UI building blocks: navbar, footer, pricing, FAQ, testimonials
@@ -58,21 +58,22 @@ Use these when designing background atmosphere or texture overlays. SVG, clip-pa
 #### Trigger from chat
 After installing the MCP, just ask in plain English:
 
-> "use 21st-dev magic to add a sticky navbar with a search command palette"
+> "use 21st to add a sticky navbar with a search command palette"
 
 The MCP returns the component code. **Don't paste it raw** — apply your project's color tokens, font tokens, and motion patterns before committing. In non-React projects, port it per the porting rule above.
 
-#### Install (MCP setup in `~/.claude.json`)
+#### Install
+
+Recommended: `<runner> @21st-dev/cli@latest init --client claude`. Or add it manually — it's an HTTP MCP server:
 
 ```json
-"21st-dev-magic": {
-  "command": "npx",
-  "args": ["-y", "@21st-dev/magic@latest"],
-  "env": { "API_KEY": "YOUR_KEY_FROM_21ST_DEV_CONSOLE" }
+"21st": {
+  "url": "https://21st.dev/api/mcp",
+  "headers": { "x-api-key": "YOUR_21ST_API_KEY" }
 }
 ```
 
-Get the API key at https://21st.dev/magic/console (free tier exists).
+Get a key at https://21st.dev/mcp (free tier exists). Keys from the old Magic console were reset and no longer work. Existing configs using `@21st-dev/magic` still run — that package is now a proxy to the same server.
 
 ### 3. Structural primitives — shadcn/ui, shadcn-vue, shadcn-svelte, Spartan
 
@@ -108,7 +109,7 @@ Angular CDK (`@angular/cdk`) supplies behavior — overlays, focus trapping, liv
 
 | Need                                     | React                | Vue / Svelte / Angular / Astro         |
 |------------------------------------------|----------------------|----------------------------------------|
-| Hero text with kinetic effect            | React Bits           | Port a React Bits effect               |
+| Hero text with kinetic effect            | React Bits           | Vue / Svelte Bits, else port a React Bits effect |
 | Animated background atmosphere           | React Bits           | React Bits Tools export, or port       |
 | Standard navbar / pricing / hero layout  | 21st.dev Magic       | 21st.dev as reference, ported          |
 | Form field, dialog, dropdown, table      | shadcn (customized)  | shadcn-vue / shadcn-svelte / Spartan, or an Astro island (customized) |
@@ -131,12 +132,12 @@ Angular CDK (`@angular/cdk`) supplies behavior — overlays, focus trapping, liv
 
 ## Anti-Patterns
 
-- ❌ Using default shadcn / shadcn-vue / shadcn-svelte / Spartan unmodified (looks like every other shadcn site)
-- ❌ Pasting 21st.dev components without retokenizing colors/fonts
-- ❌ Installing React into a Vue, Svelte, Angular or Astro project to use a React component
-- ❌ Mixing 5+ component libraries in one project (visual chaos)
-- ❌ Pulling animated backgrounds AND complex orchestrated animations on the same screen (motion overload)
-- ❌ Using component library defaults when the brief was "premium / distinctive"
+- Bad: Using default shadcn / shadcn-vue / shadcn-svelte / Spartan unmodified (looks like every other shadcn site)
+- Bad: Pasting 21st.dev components without retokenizing colors/fonts
+- Bad: Installing React into a Vue, Svelte, Angular or Astro project to use a React component
+- Bad: Mixing 5+ component libraries in one project (visual chaos)
+- Bad: Pulling animated backgrounds AND complex orchestrated animations on the same screen (motion overload)
+- Bad: Using component library defaults when the brief was "premium / distinctive"
 
 ## Recommended Stack Per Project Type
 

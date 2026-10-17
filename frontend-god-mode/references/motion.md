@@ -1,14 +1,14 @@
 # Motion & Animation Reference
 
-The line between $500 and $10,000 is motion. Static AI sites are obvious. Animated AI sites with linear easing and bounce-everywhere are even worse. This reference enforces premium motion.
+Static AI sites are obvious; animated ones with linear easing and bounce everywhere are worse. This reference enforces premium motion.
 
-The rules and numbers here apply to every framework. The framework-specific implementation of each pattern (React `motion/react`, Angular, Svelte) lives in `references/frameworks/<framework>.md` — load it alongside this file.
+The rules and numbers here apply to every framework. The framework-specific implementation of each pattern (React, Vue, Svelte, Angular, Astro) lives in `references/frameworks/<framework>.md` — load it alongside this file.
 
 ## The Four Hard Rules
 
 1. **No linear easing on UI motion.** Use spring physics or premium cubic-bezier. **Exception:** infinite seamless carousels and shimmer/marquee loops use linear timing — they need constant velocity to feel right. Linear is banned only for entrance, exit, hover, and tap motion. (The CSS `linear()` *function* used to encode springs below is not linear easing.)
 2. **No `width`/`height`/`top`/`left` animation.** Only `transform` and `opacity` — they're hardware-accelerated.
-3. **No bounce/elastic easing.** It's dated. Use spring with `damping: 20` for an overshoot that feels modern.
+3. **No bounce/elastic easing.** It's dated. Use the springs below; `springOvershoot` (damping 12) when you want a pop, `springSnappy` (damping 30) for a slight settle. `springSmooth` (damping 20) is critically damped — no overshoot.
 4. **Perpetual animations live in their own isolated leaf component.** They must never cause the parent (or the framework's change detection) to re-render. Prefer CSS keyframes for loops — they cost zero framework work.
 
 ## The Spring Defaults
@@ -184,7 +184,9 @@ When `MOTION_INTENSITY > 5`, embed continuous loops in standard components. Writ
 
 ### Typewriter (multi-prompt cycling)
 
-Cycle through 3-4 prompts with blinking cursor + 1.5s pause between cycles. Used in hero search bars or AI command inputs. The cycling timer is the one perpetual loop that needs JS. Keep it in its own leaf component and clear the timer on teardown.
+Cycle through 3-4 prompts with a blinking cursor. Timing per prompt: 2.5s typing → 1s pause → 0.8s shimmer → fade out → next. Used in hero search bars or AI command inputs.
+
+JS timers are allowed only for loops that change content or order (typewriter, list reorder, badge toggle) — everything purely visual is CSS. Keep each timer in its own leaf component and clear it on teardown.
 
 ## Scroll-Driven Effects
 
@@ -225,25 +227,16 @@ JS-driven motion runs through the Web Animations API or inline styles, which tha
 
 ## Anti-Patterns
 
-- ❌ Animating `width`, `height`, `top`, `left` — repaints, not GPU
-- ❌ Framework state for hover/pointer position — re-renders kill mobile
-- ❌ Linear easing on UI — feels robotic
-- ❌ Bounce / elastic — feels dated (2014 mobile vibes)
-- ❌ Custom mouse cursor replacements — outdated, breaks accessibility
-- ❌ Mixing GSAP + motion on the same element tree
-- ❌ `scroll` listeners on window — use `scroll()` / `useScroll`
-- ❌ JS timers for loops CSS keyframes can do
-- ❌ Animation duration over 600ms for UI motion (heroes can go longer; spring settle tails don't count)
+- Bad: Animating `width`, `height`, `top`, `left` — repaints, not GPU
+- Bad: Framework state for hover/pointer position — re-renders kill mobile
+- Bad: Linear easing on UI — feels robotic
+- Bad: Bounce / elastic — feels dated (2014 mobile vibes)
+- Bad: Custom mouse cursor replacements — outdated, breaks accessibility
+- Bad: Mixing GSAP + motion on the same element tree
+- Bad: `scroll` listeners on window — use `scroll()` / `useScroll`
+- Bad: JS timers for loops CSS keyframes can do
+- Bad: Perceived UI motion longer than ~600ms (heroes can go longer). The `--spring-*-duration` values are settle times — most of the visible movement is done in the first half, so they're within the budget.
 
-## Final Motion Audit
+## Final Check
 
-- [ ] Spring physics on all interactive motion
-- [ ] No `width`/`height` animations
-- [ ] List reveals are staggered (not instant mount)
-- [ ] Perpetual loops are CSS keyframes or isolated leaf components
-- [ ] Reduced-motion respected (CSS guard + JS check)
-- [ ] Every animation, observer, interval and listener has teardown
-- [ ] No browser APIs touched during SSR
-- [ ] No bounce/elastic easing
-- [ ] No custom mouse cursors
-- [ ] Framework checklist in `frameworks/<framework>.md` passes
+Motion items are in **Final Pre-Flight** (`anti-slop.md`), plus your framework file's pre-flight. Also confirm no custom mouse cursors.

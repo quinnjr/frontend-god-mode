@@ -4,26 +4,27 @@ Typography is the single highest-leverage design choice. Get it right and everyt
 
 ## The Banned List
 
-Never use these unless the user explicitly demands them:
+Never use these as the primary face unless the user or brand requires them (see Precedence in SKILL.md):
 
-- **Inter** — the AI tell. Banned for "premium" and "creative" projects.
+- **Inter** (regular cut) — the AI tell. Banned everywhere; `Inter Tight` / `Inter Display` are allowed as body cuts only.
 - **Roboto, Arial, Helvetica, system-ui** — generic, lifeless.
 - **Times New Roman, Georgia** as body — dated.
 - **Comic Sans, Papyrus, Lobster** — unless explicitly requested for ironic/playful contexts.
 
 ## The Approved Stack — Pick One Pairing Per Project
 
-Match the pairing to the aesthetic direction. **Do not cross pairings.** Do not always pick Space Grotesk.
+Match the pairing to the aesthetic direction. **Do not cross pairings.** Vary your picks across projects — the first option in each list is not a default, and no single family (Geist, Space Grotesk, Satoshi) should become your house font.
 
 ### For premium SaaS / dashboards / software UIs
-- **Display + body:** Geist + Geist Mono
-- **Display + body:** Satoshi + JetBrains Mono
-- **Display + body:** Cabinet Grotesk + Inter Tight (only Tight, never plain Inter)
-- Mono numbers are mandatory for tabular data (`font-mono` on metrics).
+- **Display + body, mono:** Geist, Geist Mono
+- **Display + body, mono:** Satoshi, JetBrains Mono
+- **Display / body:** Cabinet Grotesk / Inter Tight (only Tight, never plain Inter)
+- **Display + body, mono:** Hanken Grotesk, IBM Plex Mono
+- Tabular numbers are mandatory for data (`tabular-nums`, or `font-mono` on metrics).
 
 ### For creative / editorial / agency
 - **Display:** PP Editorial New (italic), Reckless, Tiempos Headline, Söhne Breit
-- **Body:** Söhne, Söhne Buch, Inter Display (the display cut, NOT regular Inter)
+- **Body:** Söhne (Buch weight), Inter Display (the display cut, NOT regular Inter)
 - **Accent:** Italic serif eyebrow + sans body for editorial pop
 
 ### For brutalist / industrial
@@ -33,10 +34,10 @@ Match the pairing to the aesthetic direction. **Do not cross pairings.** Do not 
 
 ### For luxury / refined
 - **Display:** GT Sectra, Canela, PP Editorial New
-- **Body:** Söhne, Inter Display, Cormorant Garamond (body italic)
+- **Body:** Söhne (Buch weight), Inter Display, Cormorant Garamond (body italic)
 
 ### For playful / toy
-- **Display:** Cooper BT, Bagel Fat One, Outfit at heavy weights
+- **Display:** Cooper BT, Fraunces (weight 800–900, `'SOFT' 100`), Bagel Fat One, Outfit at heavy weights
 - **Body:** Outfit, Plus Jakarta Sans
 
 ### For retro-futuristic / tech
@@ -49,7 +50,7 @@ Match the pairing to the aesthetic direction. **Do not cross pairings.** Do not 
 - **H2:** `text-2xl md:text-4xl tracking-tight leading-tight`
 - **H3:** `text-xl md:text-2xl tracking-tight`
 - **Body:** `text-base leading-relaxed max-w-[65ch]` — never wider than 65 characters
-- **Small / caption:** `text-sm text-zinc-500 tracking-wide uppercase` (uppercase only for labels under 4 words)
+- **Small / caption:** `text-sm text-[var(--muted)] tracking-wide uppercase` (uppercase only for labels under 4 words)
 
 ## Anti-Patterns
 
@@ -76,32 +77,30 @@ Some recommended fonts are paid/licensed. Use these free fallbacks if the user c
 |----------------------|---------------------------------------------------------|
 | PP Editorial New     | Instrument Serif (Google Fonts)                         |
 | Söhne                | Inter Tight (Google) — only the Tight cut, never plain  |
+| Söhne Breit          | Archivo at an expanded width (Google, `wdth` axis)      |
 | GT Sectra            | Fraunces (Google), or Cormorant Garamond                |
-| Cabinet Grotesk      | Inter Tight, or Outfit                                  |
+| Canela               | Gloock or Fraunces (Google)                             |
 | Reckless             | Newsreader (Google)                                     |
-| Tiempos Headline     | Source Serif Pro (Google)                               |
-| Neue Haas Grotesk    | Inter Tight (only Tight)                                |
+| Tiempos Headline     | Source Serif 4 (Google)                                 |
+| Neue Haas Grotesk    | Archivo (display) + Inter Tight (body), both Google     |
 | Akkurat Mono         | JetBrains Mono (Google)                                 |
-| Cooper BT            | Bagel Fat One (Google)                                  |
+| Cooper BT            | Fraunces (Google), weight 800–900, `font-variation-settings: 'SOFT' 100` |
 | Söhne Mono           | JetBrains Mono                                          |
 
-**Free fonts that always work** (Google Fonts):
-- Geist + Geist Mono — premium SaaS default
-- JetBrains Mono — mono UI/data
-- Outfit — playful, modern
-- Plus Jakarta Sans — clean body
-- Instrument Serif — editorial display
-- Fraunces — luxury/editorial display
-- Newsreader — editorial body
-- Departure Mono — retro tech
+**Free from Fontshare (ITF Free Font License, commercial use OK):** Satoshi, Cabinet Grotesk. They aren't on Google Fonts or Fontsource — download the woff2 and self-host with `@font-face` (`next/font/local` in Next.js).
 
-If serving a paid font, always use `next/font/local` (not `next/font/google`) and host the .woff2 yourself.
+**Free on Google Fonts and Fontsource:** Geist + Geist Mono, Hanken Grotesk, Archivo, JetBrains Mono, IBM Plex Mono, Outfit, Plus Jakarta Sans, Instrument Serif, Fraunces, Gloock, Newsreader, Source Serif 4, Cormorant Garamond, Space Grotesk, Bagel Fat One.
+
+**Free, self-host only:** Departure Mono (OFL, from departuremono.com — not on Google Fonts or Fontsource).
+
+Paid fonts are always self-hosted: `next/font/local` in Next.js, `@font-face` + woff2 everywhere else.
 
 ## Font Pairing Examples That Always Work
 
 | Aesthetic        | Display          | Body             | Mono           |
 |------------------|------------------|------------------|----------------|
 | Premium SaaS     | Geist            | Geist            | Geist Mono     |
+| Precise SaaS     | Hanken Grotesk   | Hanken Grotesk   | IBM Plex Mono  |
 | Editorial agency | PP Editorial New | Söhne            | —              |
 | Brutalist        | Neue Haas Grotesk| Inter Tight      | IBM Plex Mono  |
 | Luxury           | GT Sectra        | Söhne            | —              |
@@ -110,16 +109,10 @@ If serving a paid font, always use `next/font/local` (not `next/font/google`) an
 
 ## OpenType Tips
 
-- Enable tabular numbers for data: `font-feature-settings: 'tnum'`
-- Enable contextual alternates for display: `font-feature-settings: 'ss01', 'cv01'`
+- Tabular numbers for data: `font-variant-numeric: tabular-nums` (Tailwind `tabular-nums`)
+- Stylistic sets / character variants on display type (font-specific — check what the font ships): `font-feature-settings: 'ss01', 'cv01'`
 - For italic serif eyebrows above headers: works wonders on editorial layouts
 
-## Mandatory Final Check
+## Final Check
 
-Before shipping:
-- [ ] Body line-height is at least 1.5
-- [ ] Body width is capped at `max-w-[65ch]`
-- [ ] Display tracking is tightened (`tracking-tight` minimum)
-- [ ] No Inter (regular cut) anywhere in the project
-- [ ] Hierarchy reads in three glances: title, subtitle, body
-- [ ] At most TWO type families per project (display + body, plus optional mono)
+Typography items are in **Final Pre-Flight** (`anti-slop.md`). Also confirm the hierarchy reads in three glances: title, subtitle, body.

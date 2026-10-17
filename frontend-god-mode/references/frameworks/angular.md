@@ -85,7 +85,7 @@ CSS `:active` from `motion.md`. Nothing Angular-specific.
   template: `
     @if (visible()) {
       <div animate.enter="badge-in" animate.leave="badge-out"
-           class="absolute top-4 right-4 px-3 py-1 rounded-full bg-[var(--accent)] text-[var(--bg)] text-xs">
+           class="absolute top-4 right-4 px-3 py-1 rounded-full bg-[var(--accent)] text-[var(--accent-fg)] text-xs">
         3 new
       </div>
     }
@@ -197,12 +197,13 @@ CSS guard from `motion.md` in `styles.css`, plus `prefersReducedMotion()` before
 
 - **Intelligent List:** `IntelligentList` above.
 - **Live Status:** `LiveStatus` above. Toggle `visible` from an interval started in `afterNextRender`, cleared in `DestroyRef.onDestroy`.
-- **Wide Data Stream:** CSS `.marquee` from `motion.md` with `@for (m of doubled(); track $index)` where `doubled = computed(() => [...metrics(), ...metrics()])`.
+- **Wide Data Stream:** CSS `.marquee` from `motion.md` with two identical groups — `<div class="flex gap-4 pr-4">@for (m of metrics(); track m.id) {…}</div>` and the same group again with `aria-hidden="true"`.
 - **Command Input typewriter:** a signal for the visible text, advanced by a timer started in `afterNextRender` and cleared on destroy. It's the only archetype that updates a signal per tick; keep it in its own `OnPush` leaf.
+- **Contextual UI:** compose `appReveal` over the highlight spans with an `animate.enter` toolbar (`--spring-snappy`).
 
 ## Fonts
 
-Self-host with Fontsource. Never a Google Fonts `<link>` in `index.html` for production builds.
+Self-host with Fontsource. Never a Google Fonts `<link>` in `index.html` for production builds. The example uses Geist — install and import the pairing you actually chose from `typography.md` (Fontsource package names are `@fontsource-variable/<family>` for variable fonts, `@fontsource/<family>` otherwise). Fontshare and paid fonts: self-host the woff2 with `@font-face`.
 
 ```bash
 <pm> add @fontsource-variable/geist @fontsource-variable/geist-mono
@@ -251,11 +252,15 @@ Tailwind v4 in Angular uses PostCSS. Add `.postcssrc.json` at the project root:
 { "plugins": { "@tailwindcss/postcss": {} } }
 ```
 
+**Tailwind v3 projects:** keep the existing `tailwind.config.*` + PostCSS setup; put tokens in `theme.extend` instead of `@theme` (`colors: { accent: 'var(--accent)' }`). For opacity modifiers, store the channels (`--accent: 0.52 0.17 258`) and map `accent: 'oklch(var(--accent) / <alpha-value>)'`.
+
 ## Setup Install
 
 ```bash
-<pm> add motion @fontsource-variable/geist @ng-icons/core @ng-icons/phosphor-icons
+<pm> add motion @ng-icons/core @ng-icons/phosphor-icons
 ```
+
+Fonts are installed separately, after the pairing is chosen (see Fonts).
 
 `<pm>` is the project's package manager: the lockfile decides it (`pnpm-lock.yaml` → pnpm, `yarn.lock` → yarn, `bun.lock` → bun, else npm).
 

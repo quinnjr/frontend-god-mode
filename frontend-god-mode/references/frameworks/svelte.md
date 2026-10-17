@@ -16,6 +16,8 @@ Load this when `package.json` has `svelte` or `@sveltejs/kit`. The design rules 
 - **Spring physics, stagger, scroll, pointer:** the vanilla `motion` package via the shared helpers in `motion.md` (put them in `src/lib/motion.ts`), applied with `{@attach}`.
 - **Perpetual loops:** CSS keyframes from `motion.md`.
 
+`$lib/motion` and `svelte/motion` both export `prefersReducedMotion` (a function vs. a reactive object). In components, import the one from `svelte/motion`; if a file needs both, alias the helper: `import { prefersReducedMotion as reducedMotionNow } from '$lib/motion'`.
+
 Svelte transitions take an easing function, not spring config. Add the same springs as easings to `src/lib/motion.ts`:
 
 ```ts
@@ -92,7 +94,7 @@ CSS `:active` from `motion.md`. Nothing Svelte-specific.
   <div
     in:scale={{ start: 0, ...(prefersReducedMotion.current ? { duration: 0 } : overshoot) }}
     out:fade={{ duration: prefersReducedMotion.current ? 0 : 200 }}
-    class="absolute top-4 right-4 px-3 py-1 rounded-full bg-[var(--accent)] text-[var(--bg)] text-xs"
+    class="absolute top-4 right-4 px-3 py-1 rounded-full bg-[var(--accent)] text-[var(--accent-fg)] text-xs"
   >
     3 new
   </div>
@@ -164,12 +166,13 @@ CSS guard from `motion.md` in `src/app.css`, `prefersReducedMotion.current` (fro
 
 - **Intelligent List:** reorder example above.
 - **Live Status:** badge example above, toggled from an interval in `$effect` that returns `clearInterval`.
-- **Wide Data Stream:** CSS `.marquee` from `motion.md` with `{#each [...metrics, ...metrics] as m, i (i)}`.
+- **Wide Data Stream:** CSS `.marquee` from `motion.md` with two identical groups — `<div class="flex gap-4 pr-4">{#each metrics as m (m.id)}…{/each}</div>` and the same group again with `aria-hidden="true"`.
 - **Command Input typewriter:** `$state` for the visible text, advanced by a timer in `$effect` with cleanup, in its own leaf component.
+- **Contextual UI:** compose `{@attach reveal}` over the highlight spans with an `in:`/`out:` toolbar (`snappy` easing).
 
 ## Fonts
 
-Self-host with Fontsource:
+Self-host with Fontsource. The example uses Geist — install and import the pairing you actually chose from `typography.md` (Fontsource package names are `@fontsource-variable/<family>` for variable fonts, `@fontsource/<family>` otherwise). Fontshare and paid fonts: self-host the woff2 with `@font-face`.
 
 ```bash
 <pm> add @fontsource-variable/geist @fontsource-variable/geist-mono
@@ -218,11 +221,15 @@ import { defineConfig } from 'vite';
 export default defineConfig({ plugins: [tailwindcss(), sveltekit()] });
 ```
 
+**Tailwind v3 projects:** keep the existing `tailwind.config.*` + PostCSS setup; put tokens in `theme.extend` instead of `@theme` (`colors: { accent: 'var(--accent)' }`). For opacity modifiers, store the channels (`--accent: 0.52 0.17 258`) and map `accent: 'oklch(var(--accent) / <alpha-value>)'`.
+
 ## Setup Install
 
 ```bash
-<pm> add motion @fontsource-variable/geist phosphor-svelte
+<pm> add motion phosphor-svelte
 ```
+
+Fonts are installed separately, after the pairing is chosen (see Fonts).
 
 `<pm>` is the project's package manager: the lockfile decides it (`pnpm-lock.yaml` → pnpm, `yarn.lock` → yarn, `bun.lock` → bun, else npm).
 

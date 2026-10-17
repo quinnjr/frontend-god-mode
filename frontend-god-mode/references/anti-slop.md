@@ -1,13 +1,13 @@
 # Anti-Slop Reference (Pre-Flight Mandatory)
 
-This is the final filter. Run the project through every item before reporting "done." If any check fails, fix it. No exceptions.
+This is the final filter. Run **Final Pre-Flight** at the bottom against the files you created or changed before reporting "done". If a check fails, fix it.
 
-## The 24 AI Tells
+## AI Tells
 
 If your output has any of these, it screams "AI generated."
 
 ### Visual / CSS
-1. **Inter font** for premium / creative work (use Geist, Satoshi, Cabinet Grotesk, Outfit, PP Editorial New)
+1. **Inter font** (regular cut) as the primary face — banned. Pick a family that fits the aesthetic from `typography.md`.
 2. **Purple-to-blue gradient** on white backgrounds (the #1 tell — banned outright)
 3. **Pure `#000` / `#FFF`** without tint (use `oklch(0.12 0.005 H)` / `oklch(0.99 0.005 H)`)
 4. **Default neon shadow** like `box-shadow: 0 0 20px rgba(120,80,255,0.5)` (banned)
@@ -15,8 +15,8 @@ If your output has any of these, it screams "AI generated."
 6. **Gradient text fill** on large H1s (cliché, use solid color + tracking)
 7. **Custom mouse cursors** (outdated, breaks accessibility — banned)
 8. **Side-tab borders** (`border-l-4 border-purple-500` on alerts) — banned
-9. **Bounce / elastic easing** (feels dated, use spring with `damping: 20`)
-10. **Generic `rounded-md`** everywhere — vary based on aesthetic (`rounded-[2.5rem]`, `rounded-[14px]`, sharp `rounded-none`)
+9. **Bounce / elastic easing** (feels dated) — use the spring presets in `motion.md`; `springOvershoot` when you want a pop
+10. **Generic `rounded-md`** everywhere — choose the radius per aesthetic (sharp `rounded-none`, `rounded-[14px]`, soft `rounded-[2.5rem]`) and apply it consistently
 
 ### Typography
 11. **Oversized H1 that screams** — control with weight + color, not just `text-9xl`
@@ -27,16 +27,18 @@ If your output has any of these, it screams "AI generated."
 16. **`font-sans` defaulting to system-ui** — must explicitly load a non-system font
 
 ### Layout
-17. **Centered hero** with H1 + subtitle + 2 CTAs (banned when DESIGN_VARIANCE > 4)
+17. **The template hero** — centered H1 + subtitle + 2 CTAs. A centered hero is fine when it's a deliberate composition (oversized type, an asset, an asymmetric detail); the stock template is banned.
 18. **3 equal cards in a row** as the features pattern (banned)
 19. **Cards inside cards** — flatten the depth
-20. **`h-screen` on heroes** — `min-h-[100dvh]` always
+20. **`h-screen` / `100vh`** — `min-h-[100dvh]` for viewport sections, `h-dvh` for app shells
 21. **Flex percentage math** (`w-[calc(33%-1rem)]`) — use Grid
 
 ### Content / Data
-22. **Generic names** — "John Doe", "Jane Smith", "Sarah Chen", "Jack Su" (banned). Use specific, realistic names: `Mira Okonkwo`, `Theo Vasquez`, `Lin Park-Aboagye`
-23. **Round-number fake data** — `99.99%`, `$50.00`, `1,000 users`, `+1 (555) 123-4567` (banned). Use messy: `47.2%`, `$47.20`, `1,128 users`, `+1 (312) 847-1928`
-24. **Startup slop names** — "Acme", "Nexus", "SmartFlow", "Apex" (banned). Invent contextual: `Lattice & Co.`, `Provenance Studio`, `Tessellate Labs`
+22. **Generic names** — "John Doe", "Jane Smith", "Sarah Chen" (banned). Use specific, culturally varied names that fit the domain.
+23. **Round-number fake data** — `99.99%`, `$50.00`, `1,000 users`, `+1 (555) 123-4567` (banned). Use messy figures (`47.2%`, `$47.20`, `1,128 users`). Phone numbers use the fictional range `555-0100`–`555-0199`; emails use `example.com`.
+24. **Startup slop names** — "Acme", "Nexus", "SmartFlow", "Apex" (banned). Invent names that fit the product's domain and check they aren't a well-known real company.
+
+Examples in this skill illustrate the style. Never reuse them verbatim — invent fresh ones per project.
 
 ### Copy
 - **Filler words:** "Elevate", "Seamless", "Unleash", "Next-Gen", "Revolutionary", "Game-Changing" — all banned. Use concrete verbs.
@@ -46,12 +48,12 @@ If your output has any of these, it screams "AI generated."
 ### Images
 - **Broken Unsplash links** — banned. Use `https://picsum.photos/seed/{string}/800/600` for deterministic placeholders, or specific stock URLs you've verified.
 - **Generic SVG "egg" avatars** or Lucide user icons as user profile pics — banned. Use named, varied placeholder portraits or stylized initials.
-- **Emojis** anywhere — banned. Use Phosphor Icons or Radix Icons.
+- **Emojis** anywhere in the UI — banned. Use Phosphor or Radix icons.
 
 ## Forbidden CSS Patterns
 
 ```css
-/* ❌ All banned */
+/* Bad — all banned */
 .bad-1 { font-family: Inter, sans-serif; }
 .bad-2 { background: linear-gradient(135deg, #a855f7, #3b82f6); }
 .bad-3 { color: #000; background: #fff; }
@@ -60,14 +62,14 @@ If your output has any of these, it screams "AI generated."
 .bad-6 { animation: bounce 1s infinite; }
 .bad-7 { cursor: url('custom.png'), auto; }
 .bad-8 { border-left: 4px solid purple; }
-.bad-9 { transition: all 0.3s ease; }  /* use cubic-bezier */
+.bad-9 { transition: all 0.3s ease; }  /* list the properties; use a spring or cubic-bezier */
 .bad-10 { height: 100vh; }  /* use 100dvh */
 ```
 
 ## Forbidden Framework Patterns
 
 ```html
-<!-- ❌ Banned in every framework -->
+<!-- Bad in every framework -->
 <div class="grid grid-cols-3 gap-4">  <!-- banned for "features" sections -->
   <Card /> <Card /> <Card />
 </div>
@@ -79,19 +81,19 @@ animate(el, { width: '100%' })           // animate transform/opacity only
 ```
 
 ```tsx
-// ❌ React
+// Bad: React
 const [mouseX, setMouseX] = useState(0);  // re-renders kill mobile — use useMotionValue
 ```
 
 ```ts
-// ❌ Angular
+// Bad: Angular
 readonly mouseX = signal(0);              // pointer position in a signal — use the magnetic() helper
 constructor() { matchMedia('...'); }      // DOM access outside afterNextRender breaks SSR
 @for (item of items(); track $index)      // reorderable lists need a stable track key
 ```
 
 ```svelte
-<!-- ❌ Svelte -->
+<!-- Bad: Svelte -->
 <script>
   let mouseX = $state(0);  // pointer position in state — use the magnetic() helper
 </script>
@@ -101,7 +103,7 @@ constructor() { matchMedia('...'); }      // DOM access outside afterNextRender 
 ```
 
 ```vue
-<!-- ❌ Vue -->
+<!-- Bad: Vue -->
 <script setup>
 const mouseX = ref(0)                    // pointer position in a ref — use the v-magnetic directive
 const w = window.innerWidth              // top-level DOM access breaks SSR — use onMounted
@@ -111,86 +113,64 @@ const w = window.innerWidth              // top-level DOM access breaks SSR — 
 ```
 
 ```astro
-<!-- ❌ Astro -->
+<!-- Bad: Astro -->
 <Hero client:load />                     <!-- hydrating a component that only does CSS motion -->
 <script>document.querySelector('.x')</script>  <!-- top-level script: no teardown, dies after a <ClientRouter /> swap — use a custom element -->
 ```
 
-## State Coverage Required
+## State Coverage
 
-Every data-displaying component MUST have:
+Every component that fetches or mutates data MUST have:
 
-- ✅ **Loading state** — skeleton matching layout sizes (NOT generic spinners)
-- ✅ **Empty state** — beautifully composed, indicates how to populate
-- ✅ **Error state** — clear, inline, actionable
-- ✅ **Success state** — feedback after mutations
+- **Loading state** — skeleton matching layout sizes (NOT generic spinners)
+- **Empty state** — composed, tells the user how to populate it
+- **Error state** — clear, inline, actionable
+- **Success state** — feedback after mutations
 
-Generic AI output skips empty/error states. **Don't.**
+Static content (a marketing section, a hero) needs none of these — don't invent them.
 
-## Architecture Verifications
+## Final Pre-Flight
 
-- [ ] Framework detected from `package.json` and its `frameworks/<framework>.md` pre-flight passes
-- [ ] Tailwind v3 vs v4 syntax matches `package.json`
-- [ ] `package.json` checked before importing any 3rd party lib
-- [ ] Every animation, interval, listener and observer has teardown
-- [ ] No browser APIs touched during SSR
-- [ ] No animations on `width`/`height`
-- [ ] Perpetual-motion components isolated (React `memo`, Angular `OnPush`, Vue / Svelte leaf component, Astro zero-JS CSS)
-- [ ] No mixing GSAP + motion on the same element tree
-
-## The Final Pre-Flight (Read Before Saying "Done")
+The one canonical checklist. Check the files you created or changed; mark an item N/A when it can't apply (no data, no motion, no forms) rather than inventing work. Then run the framework file's pre-flight.
 
 ```
 TYPOGRAPHY
-[ ] No Inter / Roboto / Arial / system-ui as primary
-[ ] Two type families maximum (display + body, optional mono)
-[ ] Body line-height ≥ 1.5
-[ ] Body width capped at 65ch
-[ ] Display tracking tightened
+[ ] No regular Inter / Roboto / Arial / system-ui as the primary face
+[ ] At most two families (display + body), plus an optional mono
+[ ] Body line-height ≥ 1.5, body width ≤ 65ch, display tracking tightened
 
 COLOR
-[ ] No purple-blue gradient on white
-[ ] No #000 / #FFF directly (tinted only)
-[ ] One accent color, saturation ≤ 80%
-[ ] Tinted shadows (no pure black)
-[ ] Status colors from approved palette
+[ ] No purple→blue gradient; no pure #000 / #FFF
+[ ] One accent (OKLCH chroma ≤ 0.18), or a curated 3-color palette for a maximalist brief
+[ ] Accent hue distinct from the status colors; shadows tinted, never pure black
+[ ] Body text ≥ 4.5:1 — on a light bg, body text L ≤ 0.55; on dark, L ≥ 0.70 (accessibility.md)
 
 LAYOUT
-[ ] No centered hero (variance > 4)
-[ ] No 3 equal cards row
-[ ] No nested cards beyond depth 1
-[ ] No h-screen
-[ ] CSS Grid (not flex math)
-[ ] Mobile collapses to single column
+[ ] No template hero, no 3 equal feature cards, no cards nested past depth 1
+[ ] No h-screen / 100vh; Grid instead of flex percentage math
+[ ] Collapses to one column with px-4 minimum below md:
 
 MOTION
-[ ] Spring physics (no linear easing)
-[ ] No bounce / elastic
-[ ] Only transform/opacity animated
-[ ] List reveals staggered
-[ ] Reduced-motion respected
-[ ] Animation teardown present
+[ ] Springs or premium cubic-bezier; no bounce / elastic; linear only for constant-velocity loops
+[ ] Only transform / opacity animated; list reveals staggered
+[ ] Reduced motion respected (CSS guard + JS check)
+[ ] Every animation, interval, listener and observer is torn down; no browser APIs during SSR
 
-CONTENT
-[ ] Realistic names (no John Doe)
-[ ] Messy data (no 99.99%)
-[ ] No "Acme" / "Nexus" / "SmartFlow"
-[ ] No "Elevate / Seamless / Unleash" copy
-[ ] No emojis (Phosphor / Radix only)
-[ ] No broken Unsplash URLs
+ACCESSIBILITY
+[ ] Visible focus ring (≥ 3:1, opaque) on every interactive element
+[ ] Touch targets ≥ 44×44px on mobile
+[ ] Real labels on inputs; sequential heading levels; icon-only buttons labelled
 
-STATE
-[ ] Loading skeletons (not spinners)
-[ ] Empty states designed
-[ ] Error states inline + actionable
-[ ] Success feedback present
+CONTENT & STATE
+[ ] Realistic, fresh data and names (none copied from this skill's examples)
+[ ] No filler copy, no lorem ipsum, no emojis, no broken image URLs
+[ ] Data components have loading / empty / error / success states
 
-ARCHITECTURE
-[ ] Framework pre-flight passes (frameworks/<framework>.md)
-[ ] No state for hover position
-[ ] No window.scroll listeners
-[ ] Tailwind version syntax correct
-[ ] Dependencies verified in package.json
+PROJECT
+[ ] Followed the existing design system and DESIGN.md (Precedence in SKILL.md)
+[ ] Tailwind version syntax matches package.json; new dependencies have install commands
+[ ] Stated the aesthetic direction in one line
+[ ] DESIGN.md read first (if present) and written/updated after
 ```
 
-If you can't tick every box, **don't say done.** Fix and re-check.
+If an item fails, **don't say done.** Fix it and re-check.

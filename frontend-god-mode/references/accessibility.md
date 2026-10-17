@@ -16,22 +16,28 @@ Production-grade work means accessible work. This isn't optional. Generic AI out
 
 When using OKLCH neutrals:
 
-| Pair                                          | Likely contrast | Verdict          |
-|-----------------------------------------------|-----------------|------------------|
-| `oklch(0.15 0.01 H)` on `oklch(0.99 0.005 H)` | ~17:1           | ✅ AAA            |
-| `oklch(0.55 0.01 H)` on `oklch(0.99 0.005 H)` | ~4.6:1          | ✅ AA body        |
-| `oklch(0.65 0.01 H)` on `oklch(0.99 0.005 H)` | ~3.4:1          | ⚠️ large text only |
-| `oklch(0.75 0.01 H)` on `oklch(0.99 0.005 H)` | ~2.5:1          | ❌ FAIL           |
+Computed ratios (they hold for any neutral hue H):
+
+| Pair                                          | Contrast | Verdict                     |
+|-----------------------------------------------|----------|-----------------------------|
+| `oklch(0.15 0.01 H)` on `oklch(0.99 0.005 H)` | 19.1:1   | Pass — AAA                  |
+| `oklch(0.52 0.01 H)` on `oklch(0.965 0.005 H)` | 5.0:1   | Pass — AA body, even on a subtle surface |
+| `oklch(0.55 0.01 H)` on `oklch(0.99 0.005 H)` | 4.7:1    | Pass — AA body on the page bg only |
+| `oklch(0.65 0.01 H)` on `oklch(0.99 0.005 H)` | 3.1:1    | Large text only             |
+| `oklch(0.75 0.01 H)` on `oklch(0.99 0.005 H)` | 2.2:1    | Fail                        |
+| `oklch(0.70 0.01 H)` on `oklch(0.12 0.005 H)` | 7.6:1    | Pass — dark-mode muted text |
+
+Rule of thumb for neutral text: on light backgrounds keep L ≤ 0.52; on dark (L ≈ 0.12–0.18) keep L ≥ 0.70. Saturated colors vary by hue — compute them.
 
 **Test with real values:** use https://oklch.com/ or https://www.tpgi.com/color-contrast-checker/ before shipping.
 
 ## Focus Rings (Critical)
 
-shadcn (and its ports, shadcn-svelte and Spartan) defaults to `ring-sky-500` or `ring-blue-500` — which collides with our color rules. Override globally:
+A focus ring must reach **≥ 3:1** against the colors around it, so it has to be opaque. Point `--ring` at the accent (its light/dark values in `color.md` pass):
 
 ```css
 :root {
-  --ring: oklch(0.55 0.15 250 / 0.5);  /* matches your accent at 50% */
+  --ring: var(--accent);
 }
 
 *:focus-visible {
@@ -40,15 +46,17 @@ shadcn (and its ports, shadcn-svelte and Spartan) defaults to `ring-sky-500` or 
 }
 ```
 
+shadcn (and its ports shadcn-vue, shadcn-svelte, Spartan) draws its own ring: `focus-visible:ring-ring/50 ring-[3px]`, a box-shadow driven by `--ring` at 50% opacity, with a neutral-gray `--ring` by default. That is usually under 3:1. Either set `--ring` to the opaque accent **and** change `ring-ring/50` to `ring-ring` in the copied components, or remove their ring classes and use the outline above. Never both — you'll get two rings.
+
 Use `:focus-visible` (not `:focus`) so mouse clicks don't show rings, but keyboard tab does.
 
-For motion-friendly focus, use a 200ms ease transition on the outline width — don't animate the outline color.
+Don't animate the ring. It should appear instantly when focus moves.
 
 ## Keyboard Navigation Checklist
 
 - [ ] Every clickable element is `<button>`, `<a>`, or has `role="button"` + `tabIndex={0}` + key handler
 - [ ] Tab order matches visual order
-- [ ] Modal traps focus inside until dismissed (use Radix or Headless UI)
+- [ ] Modal traps focus inside until dismissed (native `<dialog>` with `showModal()`, or the primitives library: Radix, Reka UI, Bits UI, Spartan / Angular CDK)
 - [ ] Esc closes modals, popovers, dropdowns
 - [ ] Arrow keys navigate within radio groups, menus, tabs
 - [ ] No keyboard trap (you can always Tab out)
@@ -81,15 +89,15 @@ Don't use `<div>` for everything.
 
 ## Form Accessibility
 
-- Label above input (mandatory — see layout.md)
+- Label above input (mandatory)
 - Helper text under input, linked via `aria-describedby`
 - Error text under input, linked via `aria-describedby` AND `aria-invalid="true"`
-- Required fields marked with `aria-required="true"` (and a visual indicator, not just color)
+- Required fields use the HTML `required` attribute on native inputs (`aria-required="true"` only on custom ARIA widgets), plus a visible text indicator — not just color
 - Don't use color alone to indicate state — pair with icon or text
 
 ## Touch Targets
 
-- Mobile interactive elements: **minimum 44×44px** tap area
+- Mobile interactive elements: **44×44px** tap area — this skill's standard (WCAG 2.2 AAA 2.5.5 / Apple HIG). The WCAG 2.2 AA floor (2.5.8) is 24×24px; never go below it anywhere.
 - Pad small buttons with extra `padding` to reach 44px without growing visible size
 - Spacing between adjacent tap targets: **at least 8px**
 
@@ -105,16 +113,16 @@ Disable or shorten animations when it's true.
 
 ## Common AI Accessibility Failures
 
-- ❌ `<div onClick>` instead of `<button>`
-- ❌ Placeholder used as the only label
-- ❌ Skipped heading levels (`<h1>` then `<h3>`, no `<h2>`)
-- ❌ `outline: none` on focus, no replacement
-- ❌ Color-only error indication (red text, no icon, no label)
-- ❌ `<a>` tags with no `href` (or `href="#"`)
-- ❌ Modal that doesn't trap focus
-- ❌ Animations that don't respect `prefers-reduced-motion`
-- ❌ Insufficient contrast on muted text (`text-gray-400` on white = ~3:1, fails body)
-- ❌ Touch targets under 44px on mobile
+- Bad: `<div onClick>` instead of `<button>`
+- Bad: Placeholder used as the only label
+- Bad: Skipped heading levels (`<h1>` then `<h3>`, no `<h2>`)
+- Bad: `outline: none` on focus, no replacement
+- Bad: Color-only error indication (red text, no icon, no label)
+- Bad: `<a>` tags with no `href` (or `href="#"`)
+- Bad: Modal that doesn't trap focus
+- Bad: Animations that don't respect `prefers-reduced-motion`
+- Bad: Insufficient contrast on muted text (`text-gray-400` on white ≈ 2.5:1 — fails even large text)
+- Bad: Touch targets under 44px on mobile
 
 ## Quick Audit Tools
 
@@ -124,16 +132,10 @@ Recommend the user run:
 - **Lighthouse** in Chrome DevTools — Accessibility score
 - **WAVE** browser extension — visual feedback layer
 
-## Pre-Flight Accessibility Check
+## Accessibility Checks
 
-- [ ] All body text contrast ≥ 4.5:1
-- [ ] All interactive elements keyboard-reachable
-- [ ] Focus rings visible (and not the default sky-blue)
-- [ ] Heading levels sequential (no skipping)
-- [ ] Form inputs have proper labels (not just placeholders)
-- [ ] Errors aren't color-only
-- [ ] Touch targets ≥ 44px
-- [ ] Modals trap focus + Esc dismisses
-- [ ] `prefers-reduced-motion` respected
-- [ ] Decorative images have `alt=""`, meaningful images have descriptive alt
-- [ ] Icon-only buttons have `aria-label` or `sr-only` text
+The core items are in **Final Pre-Flight** (`anti-slop.md`). Also check:
+
+- All interactive elements keyboard-reachable; modals trap focus and Esc dismisses
+- Errors aren't color-only
+- Decorative images have `alt=""`, meaningful images have descriptive alt
