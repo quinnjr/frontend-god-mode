@@ -24,6 +24,11 @@ node --version 2>&1 && npm --version 2>&1
 
 Stop here if Node is missing.
 
+Then detect, silently, what the rest of the walkthrough adapts to:
+
+- **Framework** from `package.json`: `@angular/core` → Angular, `svelte` / `@sveltejs/kit` → Svelte, `react` → React. No `package.json` yet → ask once: "Which framework do you want — React (Next.js), Svelte (SvelteKit), or Angular?" Default to Next.js if they don't care.
+- **Package manager** from the lockfile: `pnpm-lock.yaml` → pnpm, `yarn.lock` → yarn, `bun.lock` → bun, else npm. Use it for every command below: `<pm>` means the package manager, `<runner>` its one-off runner (`pnpm dlx` / `yarn dlx` / `bunx` / `npx`).
+
 ---
 
 ## Step 1 of 4 — UI/UX Pro Max (optional augmentation)
@@ -44,45 +49,55 @@ This step is **optional**. Don't block on failure. Move to Step 2 immediately wh
 
 ---
 
-## Step 2 of 4 — Framer Motion
+## Step 2 of 4 — Motion
 
 Tell them:
 
-> **Step 2 of 4: Framer Motion**
+> **Step 2 of 4: Motion**
 >
 > This is what teaches me how to animate things — smooth page transitions, hover effects, scroll-triggered reveals. The stuff that makes a $500 site look like a $10,000 site.
 >
 > Installing now...
 
-Run:
+Run the **Setup Install** command from `references/frameworks/<framework>.md`. It installs `motion` (one package for every framework — React uses `motion/react`, Svelte and Angular use the vanilla `motion` API) plus the framework's font and icon packages. For React that's:
 ```bash
-npm install framer-motion 2>&1
+<pm> add motion 2>&1
 ```
+
+If `package.json` already has `framer-motion`, skip the install — it's the same library under its old name.
 
 - **On success** → "Done. Your sites will move now."
 - **On failure** → "Couldn't install it here — that's usually because we're not in a project folder yet. When you start a project, I'll add it then. Moving on."
 
 ---
 
-## Step 3 of 4 — React Bits
+## Step 3 of 4 — Animated Components
 
-Tell them:
+**React projects** — tell them:
 
 > **Step 3 of 4: React Bits**
 >
 > This is a library of 110+ animated components — text effects, animated backgrounds, hover interactions. We pull these in via shadcn when we need them, so no upfront install. I'll just call them like:
 >
 > ```bash
-> npx shadcn@latest add @react-bits/BlurText-TS-TW
+> <runner> shadcn@latest add @react-bits/BlurText-TS-TW
 > ```
 >
 > when we're building. Nothing for you to do here. Continuing.
+
+**Svelte or Angular projects** — tell them:
+
+> **Step 3 of 4: Animated components**
+>
+> The big animated-component libraries (like React Bits) are written for React. When we want one of those effects, I'll rebuild it natively for your framework, so you never carry React around. Nothing to install. Continuing.
 
 (Just confirm understanding, no install.)
 
 ---
 
 ## Step 4 of 4 — 21st.dev Magic
+
+**Svelte or Angular projects:** 21st.dev generates React code. Make this step optional — tell them "21st.dev is a library of pre-designed React components. I can still use it as a design reference and rebuild what you pick for your framework. Want to set it up? (Totally fine to skip.)" If they skip, go to Step 5.
 
 Tell them:
 
@@ -144,9 +159,9 @@ Tell them:
 > **You're all set.** Here's what you just installed:
 >
 > - **UI/UX Pro Max** — 50+ styles, 161 palettes, 57 font pairings
-> - **Framer Motion** — production-grade animations
-> - **React Bits** — 110+ animated components, ready via shadcn
-> - **21st.dev Magic** — 100+ production components via MCP
+> - **Motion** — production-grade animations
+> - **React Bits** — 110+ animated components, ready via shadcn *(React; on Svelte/Angular say "native ports of animated effects, on demand")*
+> - **21st.dev Magic** — 100+ production components via MCP *(omit if skipped)*
 >
 > Plus, this skill itself (frontend-god-mode) gives me the taste rules to use them well — typography, color, layout, motion, anti-slop guards.
 >
@@ -160,7 +175,7 @@ Tell them:
 >
 > > "Build me a landing page for a small-batch coffee roaster targeting at-home espresso enthusiasts. Editorial vibe, warm tones, lots of whitespace, subtle scroll animations."
 >
-> **Restart Claude Code first** so 21st.dev loads. Then let's build something that doesn't look AI-generated.
+> **Restart Claude Code first** so 21st.dev loads *(only if it was set up)*. Then let's build something that doesn't look AI-generated.
 
 ---
 
@@ -170,5 +185,6 @@ Tell them:
 - **Encouraging tone.** Casual, friendly, no jargon.
 - **Don't stop on failure.** Acknowledge, give manual command, keep moving.
 - **Wait for the API key** at Step 4 — don't fabricate one or skip.
-- **Confirm understanding** at React Bits step before continuing.
+- **Confirm understanding** at the animated-components step before continuing.
+- **Adapt every step to the detected framework and package manager.** Never run `npm` in a pnpm/yarn/bun project.
 - **End with a concrete prompt suggestion** so they know what to ask next.

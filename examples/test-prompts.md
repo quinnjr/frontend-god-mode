@@ -41,7 +41,7 @@ The skill is designed to pass these prompts without producing generic AI output.
 
 ## 4. Add animations
 
-> "Add animations to this hero component" (with a static component pasted in)
+> "Add animations to this hero component" (with a static React component pasted in)
 
 **Expected behavior:**
 - Identifies the component is server-rendered, isolates motion to a leaf Client Component with `'use client'`
@@ -65,6 +65,32 @@ The skill is designed to pass these prompts without producing generic AI output.
 - Placeholder lineup with realistic but messy names (no "John Doe")
 - No clean SaaS card grid — this is a poster, not a feature row
 
+## 6. Angular SaaS pricing page
+
+> "Add a pricing page to this Angular app — three tiers, monthly/annual toggle." (run inside an Angular 20.2+ project)
+
+**Expected behavior:**
+- Detects `@angular/core`, loads `frameworks/angular.md`
+- Standalone `OnPush` components, signals for the billing toggle, `@for` with a stable `track`
+- Tiers are NOT three equal cards: one tier emphasized (larger span or offset), or a comparison table with `divide-y`
+- Price change animates via `animate.enter` / `animate.leave` with `--spring-*` CSS (no new `@angular/animations`)
+- No `window` / `matchMedia` access outside `afterNextRender`
+- Icons via `ng-icon` (Phosphor), fonts via Fontsource — no Google Fonts `<link>`
+- Install commands use the project's package manager
+
+## 7. SvelteKit portfolio with reorderable work grid
+
+> "Build a portfolio home page in this SvelteKit project with a filterable project grid." (run inside a Svelte 5 project)
+
+**Expected behavior:**
+- Detects `@sveltejs/kit`, loads `frameworks/svelte.md`
+- Runes (`$state`, `$derived`, `$props`), no `export let`
+- Filtered grid reorders with `animate:flip` on a keyed `{#each}`; removed items leave via `out:` with spring easing
+- Page-load reveal uses `{@attach reveal}` + `data-reveal`, not `in:fly`
+- Every transition duration gated on `prefersReducedMotion.current`
+- Tailwind v4 via `@tailwindcss/vite`, not PostCSS
+- No React dependencies pulled in for React Bits / 21st.dev effects — ported natively
+
 ## How to verify pass/fail
 
 After Claude finishes, ask: **"run the pre-flight checklist from anti-slop.md against what you just built."**
@@ -73,8 +99,9 @@ Claude should produce a checklist with each item ticked or flagged. Any unticked
 
 Common failure modes to catch:
 - Snuck in Inter via shadcn defaults
-- Used `<div className="grid grid-cols-3">` for features
+- Used `grid grid-cols-3` equal cards for features
 - Used `h-screen` instead of `min-h-[100dvh]`
 - Used "Acme" or "John Doe" in sample data
 - Forgot empty / loading state on data UI
 - Linear easing somewhere in CSS transitions
+- Used the wrong framework's idioms (JSX hooks in Svelte, `useState`-style signals for pointer position in Angular)

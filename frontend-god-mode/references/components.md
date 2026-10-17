@@ -2,11 +2,22 @@
 
 Don't build everything from scratch. Pull production-quality building blocks from these libraries — then customize so they don't look like default shadcn.
 
-## The Three Libraries
+## Libraries Per Framework
+
+| Role                          | React / Next.js        | Svelte / SvelteKit           | Angular                         |
+|-------------------------------|------------------------|------------------------------|---------------------------------|
+| Structural primitives         | shadcn/ui (Radix)      | shadcn-svelte (Bits UI)      | Spartan UI (brain + helm), Angular CDK |
+| Animated text / backgrounds   | React Bits             | Port from React Bits         | Port from React Bits            |
+| Pre-designed marketing blocks | 21st.dev Magic (MCP)   | 21st.dev as design reference, ported | 21st.dev as design reference, ported |
+| Icons                         | `@phosphor-icons/react` | `phosphor-svelte`           | `@ng-icons/phosphor-icons`      |
+
+**Porting rule:** React Bits and 21st.dev emit React. In Svelte and Angular projects, never install React to use them. Read the generated code, keep the Tailwind classes (they transfer 1:1), and rewrite the logic: JSX → template syntax, hooks → runes / signals, `motion.*` props → the shared motion helpers and framework patterns in `frameworks/<framework>.md`.
+
+## The Libraries
 
 ### 1. React Bits — Animated components
 
-**110+ components** — text animations, UI elements, animated backgrounds. Lightweight, tree-shakeable, copy-paste ready. Four variants: JS-CSS, JS-TW, TS-CSS, TS-TW.
+**110+ components** — text animations, UI elements, animated backgrounds. Lightweight, tree-shakeable, copy-paste ready. Four variants: JS-CSS, JS-TW, TS-CSS, TS-TW. React only; port for other frameworks (prefer the JS-CSS or TS-TW variant as the port source — they have the fewest React-specific dependencies).
 
 #### When to use React Bits
 - Animated text effects (text scramble, kinetic marquee, gradient stroke, blur reveal)
@@ -14,22 +25,24 @@ Don't build everything from scratch. Pull production-quality building blocks fro
 - Hover-aware components (parallax tilt, magnetic, holographic foil)
 - Scroll-driven reveals
 
-#### Install via shadcn
+#### Install via shadcn (React)
 
 ```bash
-npx shadcn@latest add @react-bits/BlurText-TS-TW
-npx shadcn@latest add @react-bits/SplitText-TS-TW
-npx shadcn@latest add @react-bits/Aurora-TS-TW
-npx shadcn@latest add @react-bits/MagicBento-TS-TW
+shadcn@latest add @react-bits/BlurText-TS-TW
+shadcn@latest add @react-bits/SplitText-TS-TW
+shadcn@latest add @react-bits/Aurora-TS-TW
+shadcn@latest add @react-bits/MagicBento-TS-TW
 ```
 
-#### React Bits Tools (free, browser-based)
+(Run via the project's package-manager runner: `pnpm dlx`, `npx`, `bunx`, `yarn dlx`.)
+
+#### React Bits Tools (free, browser-based, any framework)
 
 - **Background Studio** — explore animated backgrounds, export as video/image/code
 - **Shape Magic** — inner rounded corners, export as SVG / React / clip-path
 - **Texture Lab** — 20+ effects (noise, dithering, ASCII), export high quality
 
-Use these when designing background atmosphere or texture overlays.
+Use these when designing background atmosphere or texture overlays. SVG, clip-path, video and image exports work in every framework.
 
 ### 2. 21st.dev Magic — Production components via MCP
 
@@ -46,7 +59,7 @@ After installing the MCP, just ask in plain English:
 
 > "use 21st-dev magic to add a sticky navbar with a search command palette"
 
-The MCP returns the component code. **Don't paste it raw** — apply your project's color tokens, font tokens, and motion patterns before committing.
+The MCP returns the component code. **Don't paste it raw** — apply your project's color tokens, font tokens, and motion patterns before committing. In Svelte / Angular projects, port it per the porting rule above.
 
 #### Install (MCP setup in `~/.claude.json`)
 
@@ -60,33 +73,43 @@ The MCP returns the component code. **Don't paste it raw** — apply your projec
 
 Get the API key at https://21st.dev/magic/console (free tier exists).
 
-### 3. shadcn/ui — The structural primitives
+### 3. Structural primitives — shadcn/ui, shadcn-svelte, Spartan
 
-The base layer for forms, dialogs, dropdowns, tables. **Never use defaults.** Always customize:
+The base layer for forms, dialogs, dropdowns, tables. All three follow the shadcn model: the styled code is copied into your repo, so you own it. **Never use defaults.** Always customize:
 
 - **Radii:** Default `rounded-md` is dead. Use `rounded-[14px]` or `rounded-[2.5rem]`.
-- **Colors:** Override CSS variables in `globals.css` to match your project palette.
-- **Shadows:** Replace shadcn's default `shadow-md` with tinted diffusion shadows.
-- **Motion:** Wrap dialogs/popovers in Framer Motion variants.
+- **Colors:** Override the CSS variables in the global stylesheet to match your project palette.
+- **Shadows:** Replace the default `shadow-md` with tinted diffusion shadows.
+- **Motion:** Give dialogs/popovers spring enter/exit (React: motion variants; Angular: `animate.enter`/`animate.leave` + `--spring-*`; Svelte: `in:`/`out:` with spring easings).
 
 #### Install
 
 ```bash
-npx shadcn@latest init
-npx shadcn@latest add button input dialog dropdown-menu
+# React
+shadcn@latest init
+shadcn@latest add button input dialog dropdown-menu
+
+# Svelte
+shadcn-svelte@latest init
+shadcn-svelte@latest add button input dialog dropdown-menu
+
+# Angular (Spartan)
+ng g @spartan-ng/cli:ui button
 ```
+
+Angular CDK (`@angular/cdk`) supplies behavior — overlays, focus trapping, live announcer, drag-drop — under custom-styled components. Angular Material only if the project already uses it, with its M3 theme tokens fully overridden.
 
 ## Decision Tree
 
-| Need                                     | Use                  |
-|------------------------------------------|----------------------|
-| Hero text with kinetic effect            | React Bits           |
-| Animated background atmosphere           | React Bits           |
-| Standard navbar / pricing / hero layout  | 21st.dev Magic       |
-| Form field, dialog, dropdown, table      | shadcn (customized)  |
-| Bento grid feature section               | Build from scratch (see `bento-engine.md`) |
-| Marketing hero (split / asymmetric)      | Build from scratch (see `layout.md`) |
-| Feature row with motion                  | Build from scratch + React Bits accents |
+| Need                                     | React                | Svelte / Angular                       |
+|------------------------------------------|----------------------|----------------------------------------|
+| Hero text with kinetic effect            | React Bits           | Port a React Bits effect               |
+| Animated background atmosphere           | React Bits           | React Bits Tools export, or port       |
+| Standard navbar / pricing / hero layout  | 21st.dev Magic       | 21st.dev as reference, ported          |
+| Form field, dialog, dropdown, table      | shadcn (customized)  | shadcn-svelte / Spartan (customized)   |
+| Bento grid feature section               | Build from scratch (see `bento-engine.md`) | Same                |
+| Marketing hero (split / asymmetric)      | Build from scratch (see `layout.md`) | Same                       |
+| Feature row with motion                  | Build from scratch + React Bits accents | Build from scratch + ported accents |
 
 ## Customization Checklist (Before Shipping ANY Library Component)
 
@@ -99,18 +122,22 @@ npx shadcn@latest add button input dialog dropdown-menu
 - [ ] Removed default purple/blue accent colors
 - [ ] Verified mobile collapse works
 - [ ] Verified empty / loading / error states exist
+- [ ] Ported code uses the project's framework idioms (no leftover JSX, hooks, or React deps)
 
 ## Anti-Patterns
 
-- ❌ Using default shadcn unmodified (looks like every other shadcn site)
+- ❌ Using default shadcn / shadcn-svelte / Spartan unmodified (looks like every other shadcn site)
 - ❌ Pasting 21st.dev components without retokenizing colors/fonts
+- ❌ Installing React into a Svelte or Angular project to use a React component
 - ❌ Mixing 5+ component libraries in one project (visual chaos)
-- ❌ Pulling React Bits backgrounds AND complex Framer animations on the same screen (motion overload)
+- ❌ Pulling animated backgrounds AND complex orchestrated animations on the same screen (motion overload)
 - ❌ Using component library defaults when the brief was "premium / distinctive"
 
 ## Recommended Stack Per Project Type
 
-| Project type        | shadcn  | 21st.dev | React Bits | Custom % |
+"Primitives" = shadcn / shadcn-svelte / Spartan. In Svelte and Angular, the 21st.dev and React Bits columns mean "ported".
+
+| Project type        | Primitives | 21st.dev | React Bits | Custom % |
 |---------------------|---------|----------|------------|----------|
 | SaaS landing        | ✓       | ✓ (nav, pricing) | ✓ (text fx) | 40%      |
 | Analytics dashboard | ✓       | ✓ (settings, table) | — | 60%      |

@@ -23,28 +23,24 @@ For modern SaaS dashboards and feature sections, this is your default architectu
 
 ## The Grid
 
-```tsx
-<section className="bg-zinc-50 py-24">
-  <div className="max-w-7xl mx-auto px-6 md:px-10">
-    {/* Eyebrow + heading */}
-    <div className="mb-16 max-w-2xl">
-      <p className="text-sm tracking-wide uppercase text-zinc-500 mb-3">What's inside</p>
-      <h2 className="text-4xl md:text-5xl tracking-tighter">
+Markup is shown as plain HTML. In JSX write `className`; in Angular and Svelte templates it's `class` as shown. Card contents are framework components (see `frameworks/<framework>.md`).
+
+```html
+<section class="bg-[var(--bg-subtle)] py-24">
+  <div class="max-w-7xl mx-auto px-6 md:px-10">
+    <!-- Eyebrow + heading -->
+    <div class="mb-16 max-w-2xl">
+      <p class="text-sm tracking-wide uppercase text-[var(--muted)] mb-3">What's inside</p>
+      <h2 class="text-4xl md:text-5xl tracking-tighter">
         The motion engine, fully realized.
       </h2>
     </div>
 
-    {/* Bento grid — 3 cols, 2 rows, asymmetric spans */}
-    <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-4">
-      <Card span="md:col-span-2 md:row-span-2">
-        <IntelligentList />
-      </Card>
-      <Card>
-        <CommandInput />
-      </Card>
-      <Card>
-        <LiveStatus />
-      </Card>
+    <!-- Bento grid — 3 cols, 2 rows, asymmetric spans -->
+    <div class="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-4">
+      <article class="md:col-span-2 md:row-span-2 ..."><!-- Intelligent List --></article>
+      <article class="..."><!-- Command Input --></article>
+      <article class="..."><!-- Live Status --></article>
     </div>
   </div>
 </section>
@@ -56,49 +52,9 @@ Each card MUST have a perpetual micro-animation. These are the proven five:
 
 ### 1. The Intelligent List
 
-A vertical stack of items with infinite auto-sorting. Items swap positions using `layoutId`. Simulates an AI prioritizing tasks.
+A vertical stack of items with infinite auto-sorting. Items swap positions with a spring layout animation (FLIP), never a jump. Simulates an AI prioritizing tasks.
 
-```tsx
-'use client';
-import { motion, LayoutGroup } from 'framer-motion';
-import { useEffect, useState } from 'react';
-
-const tasks = [
-  { id: 1, label: 'Draft Q3 launch plan', priority: 'high' },
-  { id: 2, label: 'Review onboarding flow', priority: 'med' },
-  { id: 3, label: 'Sync with marketing', priority: 'low' },
-  { id: 4, label: 'Update docs site', priority: 'med' },
-];
-
-export function IntelligentList() {
-  const [items, setItems] = useState(tasks);
-  useEffect(() => {
-    const t = setInterval(() => {
-      setItems((prev) => [...prev].sort(() => Math.random() - 0.5));
-    }, 3000);
-    return () => clearInterval(t);
-  }, []);
-
-  return (
-    <LayoutGroup>
-      <ul className="space-y-3">
-        {items.map((task) => (
-          <motion.li
-            key={task.id}
-            layout
-            layoutId={`task-${task.id}`}
-            transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-            className="rounded-2xl bg-zinc-50 p-4 flex items-center gap-3"
-          >
-            <span className={`w-2 h-2 rounded-full bg-emerald-500`} />
-            <span className="text-sm">{task.label}</span>
-          </motion.li>
-        ))}
-      </ul>
-    </LayoutGroup>
-  );
-}
-```
+Implementation: React `layoutId`, Svelte `animate:flip`, Angular measure-and-play FLIP. Full component in `frameworks/<framework>.md`.
 
 ### 2. The Command Input
 
@@ -115,32 +71,18 @@ Each prompt: 2.5s typing → 1s pause → shimmer for 0.8s → fade out → next
 
 Scheduling / calendar interface with breathing status indicators. Notification badge pops in with overshoot spring (`damping: 12`), holds for 3s, vanishes.
 
-```tsx
-<motion.div
-  initial={{ scale: 0, opacity: 0 }}
-  animate={{ scale: 1, opacity: 1 }}
-  exit={{ scale: 0, opacity: 0 }}
-  transition={{ type: 'spring', stiffness: 300, damping: 12 }}
-  className="absolute top-4 right-4 px-3 py-1 rounded-full bg-rose-500 text-white text-xs"
->
-  3 new
-</motion.div>
-```
+Implementation: React `<AnimatePresence>` + spring, Angular `animate.enter` with `--spring-overshoot`, Svelte `in:scale` with the `overshoot` easing. Full component in `frameworks/<framework>.md`.
 
 ### 4. The Wide Data Stream
 
-Horizontal infinite carousel of metric cards. Seamless loop using `x: ['0%', '-100%']` with duplicated content.
+Horizontal infinite carousel of metric cards. Seamless loop: render the metrics twice and translate by `-50%` with linear timing. Pure CSS (`.marquee` in `motion.md`) — identical in every framework:
 
-```tsx
-<motion.div
-  animate={{ x: ['0%', '-50%'] }}
-  transition={{ repeat: Infinity, duration: 30, ease: 'linear' }}
-  className="flex gap-4 w-max"
->
-  {[...metrics, ...metrics].map((m, i) => (
-    <MetricCard key={i} {...m} />
-  ))}
-</motion.div>
+```html
+<div class="overflow-hidden">
+  <div class="marquee gap-4">
+    <!-- metrics rendered twice; mark the duplicate set aria-hidden="true" -->
+  </div>
+</div>
 ```
 
 ### 5. The Contextual UI (Focus Mode)
@@ -149,11 +91,11 @@ A document/text view that animates a staggered highlight sweeping across a parag
 
 ## Performance — Critical Rules
 
-- **Memoize every animated card** with `React.memo`
-- **Each card lives in its OWN tiny Client Component** — never put 3 perpetual loops in one component
-- **Wrap dynamic lists** in `<AnimatePresence>` with `mode="popLayout"`
+- **Isolate every animated card** so it never re-renders the layout: React `memo` + its own Client Component, Angular `OnPush` component, Svelte its own component
+- **Each card lives in its OWN tiny component** — never put 3 perpetual loops in one component
+- **Dynamic lists animate exit and reorder** (React `<AnimatePresence mode="popLayout">`, Angular `animate.leave`, Svelte `out:` + `animate:flip`)
 - **No re-renders on the parent layout** when cards animate
-- **Cleanup intervals** in `useEffect` returns
+- **Clear every interval on teardown** (React `useEffect` return, Angular `DestroyRef`, Svelte `$effect` return)
 
 ## Spring Defaults for Bento
 
