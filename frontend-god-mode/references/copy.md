@@ -15,7 +15,7 @@ These words signal AI output. Replace every instance:
 | Game-changing      | Cliché                                | State the actual change                    |
 | Revolutionary      | Almost never true                     | Cut, describe the difference               |
 | Cutting-edge       | Self-congratulatory                   | Show, don't tell                           |
-| Robust             | Vague                                 | Specific quality (handles 1M req/s, etc.)  |
+| Robust             | Vague                                 | Specific quality (handles 1.2M req/s, etc.)  |
 | Powerful           | Says nothing                          | Specific capability                        |
 | Innovative         | Self-applied is suspicious            | Concrete novel behavior                    |
 | Streamline         | Corporate-speak                       | Specific shortcut/improvement              |
@@ -40,22 +40,22 @@ These words signal AI output. Replace every instance:
 - **Direct address:** "You ship faster with fewer bugs."
 
 ### What doesn't
-- ❌ "Elevate your business with our seamless solution"
-- ❌ "Unleash the power of next-gen analytics"
-- ❌ "Revolutionary platform for modern teams"
-- ❌ "From idea to launch — we've got you covered"
+- Bad: "Elevate your business with our seamless solution"
+- Bad: "Unleash the power of next-gen analytics"
+- Bad: "Revolutionary platform for modern teams"
+- Bad: "From idea to launch — we've got you covered"
 
 ## Subhead Patterns
 
 Always concrete. Often specific numbers or named technologies.
 
-✅ "Drop-in replacement for Datadog logs. 1/4 the price."
-✅ "TypeScript SDK, REST API, and a CLI. No SDK lock-in."
-✅ "Tested at 50M events/day. Production since 2024."
+Good: "Drop-in replacement for Datadog logs. 1/4 the price."
+Good: "TypeScript SDK, REST API, and a CLI. No SDK lock-in."
+Good: "Tested at 47.3M events/day. Production since 2024."
 
-❌ "A comprehensive solution for all your observability needs"
-❌ "Built for the modern enterprise"
-❌ "Powering teams worldwide"
+Bad: "A comprehensive solution for all your observability needs"
+Bad: "Built for the modern enterprise"
+Bad: "Powering teams worldwide"
 
 ## Button Labels
 
@@ -68,17 +68,17 @@ Always concrete. Often specific numbers or named technologies.
 - "Watch demo (90s)" — include the duration
 
 ### Specific over generic
-- ✅ "Send invoice" → not "Submit"
-- ✅ "Save draft" → not "Save"
-- ✅ "Cancel reservation" → not "Cancel"
-- ✅ "Delete project" → not "Delete"
+- Good: "Send invoice" → not "Submit"
+- Good: "Save draft" → not "Save"
+- Good: "Cancel reservation" → not "Cancel"
+- Good: "Delete project" → not "Delete"
 
 ### Banned
-- ❌ "Click here"
-- ❌ "Submit" (always more specific)
-- ❌ "Learn more" (use "See how it works" or specific)
-- ❌ "Sign up now" (the "now" is filler)
-- ❌ ALL CAPS (unless brand intentional)
+- Bad: "Click here"
+- Bad: "Submit" (always more specific)
+- Bad: "Learn more" (use "See how it works" or specific)
+- Bad: "Sign up now" (the "now" is filler)
+- Bad: ALL CAPS (unless brand intentional)
 
 ## Empty States
 
@@ -93,16 +93,16 @@ The default AI empty state is "No results found." Don't.
 
 ### Examples
 
-✅ **Good:**
+Good: **Good:**
 > **No invoices yet.**
 > Once you create your first invoice, it'll show up here.
 > [Create invoice]
 
-✅ **Good:**
+Good: **Good:**
 > **You're all caught up.**
 > No new mentions. We'll notify you when something needs your attention.
 
-❌ **Bad:**
+Bad: **Bad:**
 > No items found
 > Try adjusting your filters
 > [Clear filters]
@@ -118,16 +118,16 @@ Errors should be honest, specific, and actionable.
 
 ### Examples
 
-✅ **Good:**
+Good: **Good:**
 > "We couldn't reach the payment processor. Check your connection and try again — we didn't charge you."
 
-✅ **Good:**
+Good: **Good:**
 > "Email format looks off. Should be like name@example.com."
 
-✅ **Good:**
+Good: **Good:**
 > "Project deleted. Undo within 30 seconds."
 
-❌ **Bad:**
+Bad: **Bad:**
 > "Something went wrong. Please try again."
 > "Error: 500 Internal Server Error"
 > "Invalid input"
@@ -136,18 +136,18 @@ Errors should be honest, specific, and actionable.
 
 Don't say "Loading..." Show what's happening.
 
-✅ "Fetching the last 30 days..."
-✅ "Compiling your TypeScript (47 files)..."
-✅ "Sending invoice to mira@lattice.co..."
+Good: "Fetching the last 30 days..."
+Good: "Compiling your TypeScript (47 files)..."
+Good: "Sending invoice to accounts@example.com..."
 
-❌ "Loading..."
-❌ "Please wait..."
+Bad: "Loading..."
+Bad: "Please wait..."
 
 ## Microcopy in Forms
 
 ### Field labels
 - Concrete: "Email" not "Email address"
-- Imperative: "Project name" not "Name your project"
+- Noun labels: "Project name", not imperative "Name your project"
 
 ### Placeholders (NOT labels — use real labels)
 - Show format: `name@company.com`, not `Enter email`
@@ -157,59 +157,39 @@ Don't say "Loading..." Show what's happening.
 - One short line max
 - Anticipates the question they'd ask
 
-✅ "We'll only use this to send the receipt."
-✅ "8+ characters, including a number."
+Good: "We'll only use this to send the receipt."
+Good: "8+ characters, including a number."
 
 ### Validation errors (under field, after submit)
 - Lead with what's wrong
 - Then how to fix
 
-✅ "Password too short. Add 4 more characters."
-✅ "That email's already in use. Sign in instead?"
+Good: "Password too short. Add 4 more characters."
+Good: "That email's already in use. Sign in instead?"
 
 ## Brand / Product Names (When Inventing Placeholders)
 
-The skill bans "Acme", "Nexus", "SmartFlow." Use these patterns instead:
+The skill bans "Acme", "Nexus", "SmartFlow." Invent names from the product's own domain instead, and check the name isn't a well-known real company before using it (Lattice, Fathom, Linear, Notion are real).
 
-### Premium SaaS
-- Lattice & Co.
-- Provenance Studio
-- Tessellate Labs
-- Rivulet
-- Fathom
-- Cinder & Spar
-- Threadwell
-- Northstar Compute
+Patterns that work:
 
-### Editorial / agency
-- Polaris Atelier
-- Margin Press
-- The Saturn Office
-- Foundry & Foil
-- Halftone Magazine
+- **Two concrete nouns joined:** `<material> & <tool>` — e.g. "Cinder & Spar"
+- **A craft or trade term:** a word from the domain's own vocabulary — e.g. "Halftone" for a print magazine
+- **Place + function:** a fictional or minor place name + what it does — e.g. "Westmark Tools"
+- **A precise verb or noun, slightly unusual:** e.g. "Threadwell"
 
-### Industrial / dev
-- Westmark Tools
-- Sparkplug Systems
-- Apsis Dev
-- Beacon Logs
-- Raven CI
+Never reuse these examples — they show the pattern, not names to copy.
 
-### People names (avoid John Doe / Sarah Chen)
+### People names
 
-✅ Mira Okonkwo, Theo Vasquez, Lin Park-Aboagye, Kavi Subramanian, Aitana Reyes, Bram Holst, Yuna Ozaki, Imani Bright, Casper Holm, Noor Kazemi
+Varied by culture and context, full names, a few with hyphens or particles, matched to the product's market. Never "John Doe", "Jane Smith", "Sarah Chen", "Mike Wilson", or any name copied from this skill.
 
-❌ John Doe, Jane Smith, Sarah Chen, Mike Wilson, Jack Su
+## Copy Checks
 
-## Final Copy Audit
+The shared copy items are in **Final Pre-Flight** (`anti-slop.md`). Also check:
 
-- [ ] No banned words (Elevate, Seamless, Unleash, Next-Gen, etc.)
-- [ ] Hero headline is specific and concrete (not generic benefit)
-- [ ] Button labels use specific verbs (not "Submit" / "Click here")
-- [ ] Empty states designed (not "No results found")
-- [ ] Error messages explain what broke and how to fix
-- [ ] Loading states show progress detail
-- [ ] Form placeholders show format, not duplicate labels
-- [ ] Sample data uses realistic, varied names (no John Doe)
-- [ ] Brand placeholders aren't Acme / Nexus
-- [ ] No emojis as decoration in copy (use Phosphor / Radix icons)
+- Hero headline is specific and concrete (not a generic benefit)
+- Button labels use specific verbs (not "Submit" / "Click here")
+- Error messages explain what broke and how to fix it
+- Loading states show progress detail
+- Form placeholders show format, not a duplicate of the label

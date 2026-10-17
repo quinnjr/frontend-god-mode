@@ -12,11 +12,22 @@ Load this when `package.json` has `react` (Next.js, Vite + React, Remix / React 
 
 Use `motion` (`import { motion } from 'motion/react'`). `framer-motion` is the same API under the old package name. Match whichever is already in `package.json`; never install both.
 
+Put the spring presets from `motion.md` in one module and import them everywhere:
+
+```ts
+// lib/springs.ts
+export const springSnappy = { type: 'spring', stiffness: 400, damping: 30 } as const;
+export const springSmooth = { type: 'spring', stiffness: 100, damping: 20 } as const;
+export const springDramatic = { type: 'spring', stiffness: 60, damping: 18 } as const;
+export const springOvershoot = { type: 'spring', stiffness: 300, damping: 12 } as const;
+```
+
 ### Staggered reveal
 
 ```tsx
 'use client';
 import { motion } from 'motion/react';
+import { springSmooth } from '@/lib/springs';
 
 const container = {
   hidden: { opacity: 0 },
@@ -28,12 +39,12 @@ const container = {
 
 const item = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 20 } }
+  show: { opacity: 1, y: 0, transition: springSmooth }
 };
 
-export function StaggeredGrid({ items }) {
+export function StaggeredGrid({ items }: { items: { id: string; title: string }[] }) {
   return (
-    <motion.div variants={container} initial="hidden" animate="show" className="grid gap-4">
+    <motion.div variants={container} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }} className="grid gap-4">
       {items.map((it) => (
         <motion.div key={it.id} variants={item}>{it.title}</motion.div>
       ))}
@@ -41,6 +52,8 @@ export function StaggeredGrid({ items }) {
   );
 }
 ```
+
+`whileInView` matches the shared `reveal()` helper (fires once at 20% visibility). For content above the fold, `animate="show"` is fine.
 
 **Critical:** Parent variants and children MUST live in the same Client Component tree. If data is fetched async, pass it into a centralized motion wrapper.
 
@@ -107,7 +120,7 @@ Prefer the CSS keyframes in `motion.md`. When a loop needs motion values (keyfra
 <motion.div
   animate={{ scale: [1, 1.15, 1], opacity: [1, 0.7, 1] }}
   transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-  className="w-2 h-2 rounded-full bg-emerald-500"
+  className="w-2 h-2 rounded-full bg-[var(--accent)]"
 />
 ```
 
@@ -134,6 +147,7 @@ useEffect(() => {
 
 ```tsx
 import { useReducedMotion } from 'motion/react';
+import { springSmooth } from '@/lib/springs';
 const reduced = useReducedMotion();
 const transition = reduced ? { duration: 0 } : springSmooth;
 ```
@@ -146,8 +160,9 @@ Or wrap the app in `<MotionConfig reducedMotion="user">`.
 
 ```tsx
 'use client';
-import { motion, LayoutGroup } from 'motion/react';
+import { motion, LayoutGroup, useReducedMotion } from 'motion/react';
 import { memo, useEffect, useState } from 'react';
+import { springSmooth } from '@/lib/springs';
 
 const tasks = [
   { id: 1, label: 'Draft Q3 launch plan', priority: 'high' },
@@ -158,12 +173,14 @@ const tasks = [
 
 export const IntelligentList = memo(function IntelligentList() {
   const [items, setItems] = useState(tasks);
+  const reduced = useReducedMotion();
   useEffect(() => {
+    if (reduced) return;
     const t = setInterval(() => {
       setItems((prev) => [...prev].sort(() => Math.random() - 0.5));
     }, 3000);
     return () => clearInterval(t);
-  }, []);
+  }, [reduced]);
 
   return (
     <LayoutGroup>
@@ -173,7 +190,7 @@ export const IntelligentList = memo(function IntelligentList() {
             key={task.id}
             layout
             layoutId={`task-${task.id}`}
-            transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+            transition={springSmooth}
             className="rounded-2xl bg-[var(--bg-subtle)] p-4 flex items-center gap-3"
           >
             <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
@@ -189,14 +206,17 @@ export const IntelligentList = memo(function IntelligentList() {
 ### Live Status badge (overshoot pop)
 
 ```tsx
+import { AnimatePresence, motion } from 'motion/react';
+import { springOvershoot } from '@/lib/springs';
+
 <AnimatePresence>
   {visible && (
     <motion.div
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       exit={{ scale: 0, opacity: 0 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 12 }}
-      className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[var(--accent)] text-[var(--bg)] text-xs"
+      transition={springOvershoot}
+      className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[var(--accent)] text-[var(--accent-fg)] text-xs"
     >
       3 new
     </motion.div>
@@ -206,21 +226,47 @@ export const IntelligentList = memo(function IntelligentList() {
 
 ### Wide Data Stream
 
-Use the CSS `.marquee` from `motion.md` with `{[...metrics, ...metrics].map(...)}`. No JS needed.
+Use the CSS `.marquee` from `motion.md` with two identical groups — `<div className="flex gap-4 pr-4">{metrics.map(...)}</div>` and the same group again with `aria-hidden="true"`. No JS needed.
 
-## Fonts (Next.js)
+### Command Input typewriter
 
-```ts
+A `useState` string for the visible text, advanced by a timer started in `useEffect` (cleared in its return, skipped when `useReducedMotion()` is true), in its own `memo` leaf. Timing per prompt is in `motion.md`.
+
+### Contextual UI
+
+Compose it from the staggered reveal (highlight spans) and `AnimatePresence` (the floating toolbar, `springSnappy`).
+
+## Fonts
+
+The example uses Geist — load the pairing you actually chose from `typography.md`.
+
+**Next.js:** `next/font` (Google fonts) or `next/font/local` (Fontshare and paid fonts, self-hosted woff2):
+
+```tsx
 // app/layout.tsx
 import { Geist, Geist_Mono } from 'next/font/google';
-// or for non-Google fonts, use a self-hosted local font
-import localFont from 'next/font/local';
 
-const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
-const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-mono' });
+const sans = Geist({ subsets: ['latin'], variable: '--font-geist' });
+const mono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' });
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+      <body>{children}</body>
+    </html>
+  );
+}
 ```
 
-Non-Next React: use Fontsource (`@fontsource-variable/geist`) imported in the entry CSS, as in the Svelte file.
+```css
+/* app/globals.css */
+@theme inline {
+  --font-sans: var(--font-geist), sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+}
+```
+
+**Non-Next React (Vite):** Fontsource packages imported in the entry CSS and mapped in `@theme`, as in `vue.md`.
 
 ## Icons
 
@@ -230,7 +276,7 @@ Non-Next React: use Fontsource (`@fontsource-variable/geist`) imported in the en
 
 - **shadcn/ui** — structural primitives (`shadcn@latest init`, `shadcn@latest add button dialog`).
 - **React Bits** — animated text/backgrounds via the shadcn registry (`shadcn@latest add @react-bits/BlurText-TS-TW`).
-- **21st.dev Magic** — production components via MCP.
+- **21st.dev** — production components via the 21st MCP.
 
 See `components.md` for when to use which and how to retokenize.
 
@@ -238,11 +284,15 @@ See `components.md` for when to use which and how to retokenize.
 
 Next.js uses `@tailwindcss/postcss` for v4. Vite + React uses `@tailwindcss/vite`.
 
+**Tailwind v3 projects:** keep the existing `tailwind.config.*` + PostCSS setup; put tokens in `theme.extend` instead of `@theme` (`colors: { accent: 'var(--accent)' }`). For opacity modifiers, store the channels (`--accent: 0.52 0.17 258`) and map `accent: 'oklch(var(--accent) / <alpha-value>)'`.
+
 ## Setup Install
 
 ```bash
-<pm> add motion
+<pm> add motion @phosphor-icons/react
 ```
+
+Fonts are installed separately, after the pairing is chosen (see Fonts).
 
 `<pm>` is the project's package manager: the lockfile decides it (`pnpm-lock.yaml` → pnpm, `yarn.lock` → yarn, `bun.lock` → bun, else npm). Use `<pm> dlx` / `npx` accordingly for `shadcn`.
 
@@ -251,7 +301,7 @@ Next.js uses `@tailwindcss/postcss` for v4. Vite + React uses `@tailwindcss/vite
 - [ ] `'use client'` only on leaf components that need it — nothing that could be RSC
 - [ ] Every `motion.*` component lives in a `'use client'` file
 - [ ] No `useState` for pointer/scroll position (use motion values)
-- [ ] Every `useEffect` that starts an animation, interval, or listener returns cleanup
+- [ ] Every `useEffect` that starts an animation, interval, or listener returns cleanup, and JS loops skip when `useReducedMotion()` is true
 - [ ] Perpetual-motion components are `memo`ized leaves
 - [ ] Reordering/unmounting lists use `layout` + `<AnimatePresence mode="popLayout">`
 - [ ] Only one of `motion` / `framer-motion` installed

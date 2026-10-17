@@ -1,6 +1,6 @@
 # Setup Walkthrough
 
-Run this when the user asks to "set up" their environment, says "/website-builder-setup", or you detect a fresh project with no design dependencies. Walk them through ONE step at a time. Be encouraging. Assume zero coding experience.
+Run this only when the user asks for it ("set up website builder", "install design tools", "/website-builder-setup", "/frontend-god-mode setup"). Never start it on your own — for a build that just needs a missing package, output the install command and keep building. Walk them through ONE step at a time. Be encouraging. Assume zero coding experience.
 
 If any step fails, **don't stop**. Acknowledge it, give them the manual command, and keep moving.
 
@@ -14,10 +14,10 @@ Tell the user:
 
 Run silently:
 ```bash
-node --version 2>&1 && npm --version 2>&1
+node --version 2>&1
 ```
 
-- **If Node is installed** → "You're good. Node and npm are ready. Let's go."
+- **If Node is installed** → "You're good. Node is ready. Let's go."
 - **If Node is missing** → tell them:
 
 > You need Node.js first. Go to **https://nodejs.org** and grab the LTS version. Install it, restart your terminal, then come back and we'll continue. Takes 2 minutes.
@@ -37,10 +37,10 @@ Tell them:
 
 > **Step 1 of 4: UI/UX Pro Max** (optional)
 >
-> If you want extra design vocabulary on top of frontend-god-mode, UI/UX Pro Max is a Claude skill that adds 50+ styles, 161 palettes, 57 font pairings. **It's optional** — frontend-god-mode already covers the essentials. But if you want it, install via:
+> If you want extra design vocabulary on top of frontend-god-mode, UI/UX Pro Max is a Claude skill that adds a searchable library of styles, palettes and font pairings. **It's optional** — frontend-god-mode already covers the essentials. But if you want it, install via:
 >
 > ```bash
-> npx skills add @nextlevelbuilder/ui-ux-pro-max-skill
+> <runner> skills add nextlevelbuilder/ui-ux-pro-max-skill -a claude-code
 > ```
 >
 > If that command doesn't work in your environment, skip this step. The base frontend-god-mode skill works on its own.
@@ -59,9 +59,9 @@ Tell them:
 >
 > Installing now...
 
-Run the **Setup Install** command from `references/frameworks/<framework>.md`. It installs `motion` (one package for every framework — React uses `motion/react`, every other framework uses the vanilla `motion` API) plus the framework's font and icon packages. For React that's:
+Run the **Setup Install** command from `references/frameworks/<framework>.md`. It installs `motion` (one package for every framework — React uses `motion/react`, every other framework uses the vanilla `motion` API) plus the framework's icon package. Fonts are installed later, once a pairing has been chosen for the project. For React that's:
 ```bash
-<pm> add motion 2>&1
+<pm> add motion @phosphor-icons/react 2>&1
 ```
 
 If `package.json` already has `framer-motion`, skip the install — it's the same library under its old name.
@@ -89,25 +89,25 @@ If `package.json` already has `framer-motion`, skip the install — it's the sam
 
 > **Step 3 of 4: Animated components**
 >
-> The big animated-component libraries (like React Bits) are written for React. When we want one of those effects, I'll rebuild it natively for your framework, so you never carry React around. Nothing to install. Continuing.
+> The big animated-component library, React Bits, is written for React. Vue and Svelte have community ports (Vue Bits, Svelte Bits) I can pull in through shadcn-vue / shadcn-svelte; for anything else I'll rebuild the effect natively for your framework, so you never carry React around. Nothing to install. Continuing.
 
 (Just confirm understanding, no install.)
 
 ---
 
-## Step 4 of 4 — 21st.dev Magic
+## Step 4 of 4 — 21st.dev
 
 **Non-React projects:** 21st.dev generates React code. Make this step optional — tell them "21st.dev is a library of pre-designed React components. I can still use it as a design reference and rebuild what you pick for your framework. Want to set it up? (Totally fine to skip.)" If they skip, go to Step 5.
 
 Tell them:
 
-> **Step 4 of 4: 21st.dev Magic**
+> **Step 4 of 4: 21st.dev**
 >
-> This connects me to a library of 100+ production-ready React components — buttons, navbars, hero sections. I pull from these when we need a "looks designed" building block fast.
+> This connects me to a catalog of production-ready React components — buttons, navbars, hero sections. I pull from these when we need a "looks designed" building block fast.
 >
 > This one needs a free API key. Here's how:
 >
-> 1. Go to **https://21st.dev/magic/console**
+> 1. Go to **https://21st.dev/mcp**
 > 2. Sign up or log in (it's free)
 > 3. Copy your API key
 > 4. Paste it here when ready.
@@ -129,10 +129,9 @@ If they pick **a (project-only):**
    ```json
    {
      "mcpServers": {
-       "21st-dev-magic": {
-         "command": "npx",
-         "args": ["-y", "@21st-dev/magic@latest"],
-         "env": { "API_KEY": "THEIR_KEY_HERE" }
+       "21st": {
+         "url": "https://21st.dev/api/mcp",
+         "headers": { "x-api-key": "THEIR_KEY_HERE" }
        }
      }
    }
@@ -143,12 +142,14 @@ If they pick **b (user-wide):**
 
 1. Read `~/.claude.json`.
 2. Find or create the `mcpServers` object.
-3. Add the same `21st-dev-magic` entry above.
+3. Add the same `21st` entry above.
 4. Save the file.
 
 Then tell them:
 
-> 21st.dev is wired up. You'll need to **restart Claude Code** for it to load — close and reopen your terminal after we finish. The first launch will show a security prompt asking to approve the MCP — say yes.
+> 21st.dev is wired up. You'll need to **restart Claude Code** for it to load — close and reopen your terminal after we finish.
+
+If they chose project-only, add: "The first launch will show a security prompt asking to approve the MCP — say yes." (User-wide servers load without that prompt.)
 
 ---
 
@@ -158,10 +159,10 @@ Tell them:
 
 > **You're all set.** Here's what you just installed:
 >
-> - **UI/UX Pro Max** — 50+ styles, 161 palettes, 57 font pairings
+> - **UI/UX Pro Max** — styles, palettes and font pairings *(only if installed)*
 > - **Motion** — production-grade animations
-> - **React Bits** — 110+ animated components, ready via shadcn *(React; elsewhere say "native ports of animated effects, on demand")*
-> - **21st.dev Magic** — 100+ production components via MCP *(omit if skipped)*
+> - **React Bits** — animated components, ready via shadcn *(React; Vue/Svelte say "Vue Bits / Svelte Bits ports"; elsewhere "native ports of animated effects, on demand")*
+> - **21st.dev** — production components via MCP *(only if set up)*
 >
 > Plus, this skill itself (frontend-god-mode) gives me the taste rules to use them well — typography, color, layout, motion, anti-slop guards.
 >

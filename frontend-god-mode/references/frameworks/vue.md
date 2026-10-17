@@ -90,7 +90,7 @@ const visible = ref(false);
 
 <template>
   <Transition enter-active-class="badge-in" leave-active-class="badge-out">
-    <div v-if="visible" class="absolute top-4 right-4 px-3 py-1 rounded-full bg-[var(--accent)] text-[var(--bg)] text-xs">
+    <div v-if="visible" class="absolute top-4 right-4 px-3 py-1 rounded-full bg-[var(--accent)] text-[var(--accent-fg)] text-xs">
       3 new
     </div>
   </Transition>
@@ -183,12 +183,13 @@ CSS guard from `motion.md` in the global stylesheet (covers `<Transition>` and `
 
 - **Intelligent List:** reorder example above.
 - **Live Status:** badge example above, toggled from an interval started in `onMounted` and cleared in `onBeforeUnmount`.
-- **Wide Data Stream:** CSS `.marquee` from `motion.md` with `v-for="(m, i) in [...metrics, ...metrics]" :key="i"`.
+- **Wide Data Stream:** CSS `.marquee` from `motion.md` with two identical groups — `<div class="flex gap-4 pr-4"><MetricCard v-for="m in metrics" :key="m.id" v-bind="m" /></div>` and the same group again with `aria-hidden="true"`.
 - **Command Input typewriter:** a `ref` for the visible text, advanced by a timer started in `onMounted` and cleared in `onBeforeUnmount`, in its own leaf component.
+- **Contextual UI:** compose `v-reveal` over the highlight spans with a `<Transition>` toolbar (`--spring-snappy`).
 
 ## Fonts
 
-Self-host with Fontsource:
+Self-host with Fontsource. The example uses Geist — install and import the pairing you actually chose from `typography.md` (Fontsource package names are `@fontsource-variable/<family>` for variable fonts, `@fontsource/<family>` otherwise). Fontshare and paid fonts: self-host the woff2 with `@font-face`.
 
 ```bash
 <pm> add @fontsource-variable/geist @fontsource-variable/geist-mono
@@ -241,11 +242,15 @@ export default defineConfig({ plugins: [vue(), tailwindcss()] });
 
 Nuxt: add `tailwindcss()` to `vite.plugins` in `nuxt.config.ts`.
 
+**Tailwind v3 projects:** keep the existing `tailwind.config.*` + PostCSS setup; put tokens in `theme.extend` instead of `@theme` (`colors: { accent: 'var(--accent)' }`). For opacity modifiers, store the channels (`--accent: 0.52 0.17 258`) and map `accent: 'oklch(var(--accent) / <alpha-value>)'`.
+
 ## Setup Install
 
 ```bash
-<pm> add motion @fontsource-variable/geist @phosphor-icons/vue
+<pm> add motion @phosphor-icons/vue
 ```
+
+Fonts are installed separately, after the pairing is chosen (see Fonts).
 
 `<pm>` is the project's package manager: the lockfile decides it (`pnpm-lock.yaml` → pnpm, `yarn.lock` → yarn, `bun.lock` → bun, else npm).
 

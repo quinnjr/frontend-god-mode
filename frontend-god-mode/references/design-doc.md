@@ -16,7 +16,7 @@ Project root: `./DESIGN.md`. Same level as `package.json`. Always there. Don't b
 
 ## The template
 
-Copy this verbatim, fill in the project's actual choices:
+Copy this structure and replace every `<placeholder>` with the project's actual choices. Never copy example values — they're there to show the shape:
 
 ```markdown
 # Design
@@ -27,103 +27,105 @@ Copy this verbatim, fill in the project's actual choices:
 
 ## Aesthetic direction
 
-One sentence describing the vibe.
-e.g. "Premium SaaS — operational, engineer-trusted, Vercel-core meets terminal."
-e.g. "Editorial luxury — typographer's portfolio, italic serif eyebrows, generous whitespace."
-e.g. "70s retro maximalist — warm palette, broken grid, tactile texture overlay."
+<One sentence describing the vibe — e.g. "Editorial luxury: typographer's portfolio, italic serif eyebrows, generous whitespace.">
 
 ## Stack
 
-- Framework: Next.js <major> (App Router)   ← or "Nuxt <major> / Vue 3.5", "SvelteKit <major> / Svelte 5", "Angular <major> (standalone, zoneless)", "Astro <major> (+ Svelte islands)" — read the versions from package.json
-- Styling: Tailwind v4
-- Package manager: pnpm
+- Framework: <from package.json — e.g. "SvelteKit 2 / Svelte 5", "Next.js (App Router)", "Nuxt / Vue 3.5", "Angular (standalone, zoneless)", "Astro (+ Vue islands)">
+- Styling: <e.g. Tailwind v4 / Tailwind v3 / CSS Modules>
+- Package manager: <from the lockfile>
 
 ## Dials
 
-- DESIGN_VARIANCE: 8 / 10  (1 = perfect symmetry, 10 = artsy chaos)
-- MOTION_INTENSITY:  6 / 10  (1 = static, 10 = cinematic physics)
-- VISUAL_DENSITY:    4 / 10  (1 = airy gallery, 10 = cockpit)
+- UI type: <marketing / maximalist / app UI / data dashboard — see SKILL.md Default Dials>
+- DESIGN_VARIANCE: <n> / 10
+- MOTION_INTENSITY: <n> / 10
+- VISUAL_DENSITY: <n> / 10
 
 ## Type stack
 
-- Display: Geist (variable, weights 400-700)
-- Body: Geist
-- Mono: Geist Mono
-- Loaded via: `next/font/google`   ← or Fontsource (`@fontsource-variable/geist`) on Vue / Svelte / Angular / Astro
-- Optical features enabled: `font-feature-settings: "ss01", "cv11"`
+- Display: <family, weights — chosen for this aesthetic from typography.md>
+- Body: <family>
+- Mono: <family, or "none">
+- Loaded via: <`next/font` / Fontsource packages / self-hosted @font-face>
+- Font features: <e.g. `font-variant-numeric: tabular-nums` on data; stylistic sets if the font has them>
 
-Banned in this project: Inter, Roboto, Arial, system-ui, serif on dashboards.
+Banned in this project: regular Inter, Roboto, Arial, system-ui as primary, serif on dashboards.
 
 ## Color tokens (OKLCH)
 
+<Neutral family and hue H, accent name. Values below are the shape to fill in — compute contrast for your own values (body text ≥ 4.5:1 on bg, bg-subtle and surface).>
+
 ```css
 :root {
-  --bg:      oklch(0.12 0.005 250);   /* off-black, cool tint */
-  --fg:      oklch(0.98 0.005 250);   /* off-white */
-  --muted:   oklch(0.65 0.01 250);    /* tinted gray */
-  --border:  oklch(0.22 0.005 250);
-  --accent:  oklch(0.65 0.18 80);     /* amber */
-  --success: oklch(0.6 0.14 150);     /* emerald */
-  --error:   oklch(0.55 0.18 10);     /* rose */
+  --bg: oklch(<L> <C> <H>);
+  --bg-subtle: oklch(<L> <C> <H>);
+  --surface: oklch(<L> <C> <H>);
+  --fg: oklch(<L> <C> <H>);
+  --muted: oklch(<L> <C> <H>);
+  --border: oklch(<L> <C> <H>);
+  --accent: oklch(<L> <C> <H>);
+  --accent-fg: oklch(<L> <C> <H>);
+  --ring: var(--accent);
+  --radius: <one radius for this aesthetic>;
+  --success: oklch(<L> <C> <H>);
+  --warning: oklch(<L> <C> <H>);
+  --error: oklch(<L> <C> <H>);
+  --info: oklch(<L> <C> <H>);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root { /* same names, dark values */ }
 }
 ```
 
 Banned in this project:
-- Pure #000 / #FFF (use tinted neutrals above)
+- Pure #000 / #FFF (use the tinted neutrals above)
 - Purple-to-blue gradients (the AI tell)
-- More than ONE accent (or 3 max in maximalist mode — see DESIGN_VARIANCE)
+- More than ONE accent (a curated 3-color palette only for a maximalist brief)
 
 ## Shadows
 
 ```css
---shadow-warm-lift: 0 1px 0 rgba(255,255,255,0.04) inset,
-                    0 0 0 1px rgba(251,191,36,0.06),
-                    0 30px 80px -30px rgba(8,6,2,0.8);
+--shadow-card: <tinted toward the bg hue, e.g. 0 20px 40px -15px oklch(<L> <C> <H> / 0.08)>;
 ```
 
-Always tint shadows toward bg hue. No pure-black drops.
+No pure-black drops.
 
 ## Motion
 
-- Default spring: `{ type: "spring", stiffness: 100, damping: 20 }`
-- Tap spring: `{ stiffness: 400, damping: 30 }`
-- Hero spring: `{ stiffness: 60, damping: 18 }`
+- Springs: smooth `{ stiffness: 100, damping: 20 }`, snappy `{ stiffness: 400, damping: 30 }`, dramatic `{ stiffness: 60, damping: 18 }`, overshoot `{ stiffness: 300, damping: 12 }`
 - Stagger: `0.08s` between children, `0.1s` initial delay
-- Easing fallback (CSS): `cubic-bezier(0.16, 1, 0.3, 1)`
-- Banned: linear easing, bounce/elastic, animating width/height
-
-Library: motion@<major> (`motion/react` on React; vanilla `motion` helpers on Vue / Svelte / Angular / Astro)
-Enter/leave: motion variants (React) / `<Transition>` + `--spring-*` CSS (Vue) / `in:`/`out:` + spring easings (Svelte) / `animate.enter` + `--spring-*` CSS (Angular) / `animate()` + `hidden` (Astro)
+- CSS springs: `--spring-*` tokens from motion.md
+- Perpetual loops: <where, or "none" — per MOTION_INTENSITY>
+- Library: motion@<major> (`motion/react` on React; vanilla `motion` helpers elsewhere)
+- Banned: bounce/elastic, animating width/height, linear easing except constant-velocity loops
 
 ## Layout
 
-- Container: `max-w-[1400px] mx-auto px-6 md:px-10`
+- Container: <e.g. `max-w-[1400px] mx-auto px-6 md:px-10`>
 - Reading width: `max-w-[65ch]`
-- Section padding: `py-16 md:py-24` (daily density) / `py-24 md:py-32` (airy)
-- Hero pattern: split-screen 60/40 (left text, right asset) — NOT centered
-- Feature row: bento, asymmetric col/row spans — NEVER 3 equal cards
+- Section padding: <per density>
+- Radius: <one choice for this aesthetic — e.g. sharp `rounded-none`, `rounded-[14px]`, soft `rounded-[2.5rem]`>
+- Hero pattern: <e.g. split 60/40, oversized type over asset, editorial column — never the template centered H1 + subtitle + 2 CTAs>
+- Feature row: <bento / zig-zag / divide-y list — never 3 equal cards>
 - Mobile: collapse all `grid-cols-N` to `grid-cols-1` below `md:`
 
 ## Component inventory
 
-Primitives (shadcn / shadcn-vue / shadcn-svelte / Spartan): Button, Card, Dialog, DropdownMenu, Input
-21st.dev: navbar pattern, pricing pattern (customized to tokens above; ported outside React)
-React Bits: Aurora background (hero only), BlurText (case-study reveals; ported outside React)
-Custom: LogViewer mockup, BentoCard, MetricRow
+- Primitives: <library + components in use, e.g. shadcn-svelte: Button, Dialog, Input>
+- Pulled / ported: <e.g. React Bits BlurText (ported), 21st.dev pricing pattern (retokenized)>
+- Custom: <project components>
 
 ## Project-specific bans
 
-- No 99.99% / round-number stats (use messy: 99.987%)
-- No "Acme" / "Nexus" / "John Doe" placeholder data
-- No emojis (Phosphor icons only, stroke 1.5)
-- No `h-screen` (always `min-h-[100dvh]`)
+- <e.g. no round-number stats; no stock photography of people; icon weight "regular" only>
 
 ## Brand voice (copy)
 
-- Tone: direct, technical, slightly dry — not chirpy
-- Banned: elevate, seamless, unleash, next-gen, game-changing
-- Headline pattern: specific outcome with a number ("Search a billion log lines in under 200 ms")
-- Button labels: specific verbs ("Send invoice" not "Submit")
+- Tone: <e.g. direct, technical, slightly dry>
+- Headline pattern: <e.g. specific outcome with a messy number>
+- Button labels: specific verbs ("Send invoice", not "Submit")
 
 ## Accessibility floor
 
@@ -142,7 +144,7 @@ YYYY-MM-DD by [session description, e.g. "added pricing teaser"]
 1. **Be specific.** "Geist" not "modern sans-serif." OKLCH values not "neutral gray."
 2. **List bans inline** so any reader (human or AI) sees them immediately.
 3. **Keep it ONE file.** Don't split into design/typography.md, design/color.md. One file is the point.
-4. **Append to "Last updated"** every time you touch it, with a one-line description of what changed.
+4. **Add to "Last updated"** every time you touch it, with a one-line description of what changed. Keep only the 5 most recent entries.
 5. **Read it BEFORE building** in any subsequent session. Quote from it when explaining decisions.
 
 ## What NOT to put in DESIGN.md

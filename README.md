@@ -53,7 +53,7 @@ You'll know it fired when Claude opens with a one-line aesthetic statement (e.g.
 
 - **Claude Code** — installed and signed in
 - **Node 18+** — only needed when generated code imports npm packages (Motion, shadcn, etc.)
-- **(Optional) 21st.dev API key** — free, only needed if you want Claude to pull from 21st.dev's component library. Get it at https://21st.dev/magic/console
+- **(Optional) 21st.dev API key** — free, only needed if you want Claude to pull from 21st.dev's component library. Get it at https://21st.dev/mcp
 
 The skill itself is just markdown files. **No API keys, no installs, no background services required to use the skill on its own.** Keys and packages only matter when you opt in to specific integrations.
 
@@ -61,7 +61,7 @@ The skill itself is just markdown files. **No API keys, no installs, no backgrou
 
 ## What this fetches at runtime
 
-**The skill: nothing.** It's ~140KB of plain markdown that Claude reads when you give it a frontend task. No HTTP calls, no telemetry.
+**The skill: nothing.** It's ~150KB of plain markdown that Claude reads when you give it a frontend task. No HTTP calls, no telemetry.
 
 **Libraries the skill writes code against (only fetch when YOU run them):**
 
@@ -191,63 +191,50 @@ If it didn't fire automatically, prompt: `/frontend-god-mode build me a hero sec
 | Skill files not found                   | `ls ~/.claude/skills/frontend-god-mode/SKILL.md` — confirm the path. Re-run install with `-a claude-code`. |
 | Listed but behavior not applied         | Fully restart Claude Code — close the terminal, don't just `/clear` or start a new chat. |
 | Project-local install ignored           | Launch `claude` from the project root that contains `.claude/skills/`. |
-| `/mcp` doesn't show `21st-dev-magic`    | Verify `.mcp.json` is at the project root, key is set, and you approved the security prompt on first launch. |
+| `/mcp` doesn't show `21st`              | Verify `.mcp.json` is at the project root, the key is a new one from 21st.dev/mcp, and you approved the security prompt on first launch. |
 
 ---
 
-## 21st.dev Magic Setup (Optional)
+## 21st.dev Setup (Optional)
 
-21st.dev gives Claude access to 100+ production-ready components. The skill works fine without it — but if you want it, here's the setup.
+21st.dev gives Claude access to a catalog of production-ready React components through the 21st MCP (formerly "Magic MCP"). The skill works fine without it — but if you want it, here's the setup.
 
 ### 1. Get a free API key
 
-1. Go to https://21st.dev/magic/console
-2. Sign in (Google/GitHub OAuth — free, takes 30 seconds)
-3. Copy the API key from the dashboard
+Go to https://21st.dev/mcp, sign in, and copy the key. Keys from the old Magic console were reset and no longer work.
 
 ### 2. Add it as an MCP server
 
-**Option 1 — Project-scoped (recommended)**
+**Option 1 — the 21st CLI (recommended)**
 
-Create a `.mcp.json` at your project root:
+```bash
+npx @21st-dev/cli@latest init --client claude
+```
+
+**Option 2 — project-scoped `.mcp.json`**
 
 ```json
 {
   "mcpServers": {
-    "21st-dev-magic": {
-      "command": "npx",
-      "args": ["-y", "@21st-dev/magic@latest"],
-      "env": {
-        "API_KEY": "YOUR_KEY_HERE"
-      }
+    "21st": {
+      "url": "https://21st.dev/api/mcp",
+      "headers": { "x-api-key": "${API_KEY_21ST}" }
     }
   }
 }
 ```
 
-Replace `YOUR_KEY_HERE` with your actual key. Then add `.mcp.json` to `.gitignore` so the key doesn't get committed:
+Then `export API_KEY_21ST=...` before launching Claude Code, so the key never lands in the file. If you paste the key in directly instead, add `.mcp.json` to `.gitignore`.
 
-```bash
-echo ".mcp.json" >> .gitignore
-```
+**Option 3 — user-wide**
 
-If you want to commit the config without leaking the key, use an env var instead:
+Add the same `21st` block under `mcpServers` in `~/.claude.json`. The MCP will be available in every project.
 
-```json
-"env": { "API_KEY": "${TWENTYFIRST_API_KEY}" }
-```
+Old configs that run `@21st-dev/magic` keep working — that package is now a proxy to the same server.
 
-Then `export TWENTYFIRST_API_KEY=...` before launching Claude Code.
+### 3. Restart Claude Code
 
-**Option 2 — User-wide**
-
-Edit `~/.claude.json` and add the same `21st-dev-magic` block under `mcpServers`. The MCP will be available in every project.
-
-### 3. Restart Claude Code and approve
-
-Close and reopen Claude Code in the project. The first time, it'll show a security prompt asking whether to enable the `21st-dev-magic` MCP server. Say yes.
-
-Verify with `/mcp` — you should see `21st-dev-magic` listed as connected.
+Close and reopen Claude Code. A project-scoped server shows a security prompt the first time — say yes. Verify with `/mcp`: `21st` should be listed as connected.
 
 ---
 
@@ -278,15 +265,16 @@ Every time you build, the skill:
 5. **Bans 24 AI tells** — Inter, purple gradients, John Doe, 3-card rows, h-screen, etc.
 6. **Runs a pre-flight checklist** before reporting "done"
 
-## The 5 hard rules
+## The 6 hard rules
 
-These override everything:
+These override the skill's defaults — but never your explicit request or your project's existing design system:
 
-1. No Inter font.
+1. No regular Inter as the primary font.
 2. No purple-to-blue gradient on white.
-3. No `h-screen` on heroes (use `min-h-[100dvh]`).
+3. No `h-screen` / `100vh` (use `min-h-[100dvh]`, or `h-dvh` for app shells).
 4. No three equal cards in a row as features.
-5. No generic data ("John Doe", "Acme", "$99.99").
+5. No generic data ("John Doe", "Acme", "$99.99") — and no reusing the skill's own example names.
+6. DESIGN.md is read before and written after every meaningful build.
 
 ---
 
@@ -376,11 +364,8 @@ frontend-god-mode is the **taste layer**. These skills, installable separately, 
 # Visual testing — Playwright + screenshots, closes the build → verify loop
 npx skills add anthropics/skills@webapp-testing -a claude-code
 
-# UX critique — quantitative scoring, persona testing, anti-pattern detection
-npx skills add pbakaus/impeccable@critique -a claude-code
-
-# Technical audit — a11y, performance, responsive checks with severity ratings
-npx skills add pbakaus/impeccable@audit -a claude-code
+# UX critique + technical audit — run as /impeccable critique and /impeccable audit
+npx skills add pbakaus/impeccable -a claude-code
 
 # Vercel's interface guidelines — complements our color/typography/motion rules
 npx skills add vercel-labs/agent-skills@web-design-guidelines -a claude-code
@@ -406,8 +391,8 @@ npx skills add addyosmani/web-quality-skills@accessibility -a claude-code
 
 1. **frontend-god-mode** picks aesthetic and builds
 2. **webapp-testing** boots the dev server and takes screenshots
-3. **impeccable@critique** scores the UX
-4. **impeccable@audit** runs the a11y/perf checks
+3. **/impeccable critique** scores the UX
+4. **/impeccable audit** runs the a11y/perf checks
 5. frontend-god-mode applies the fixes from steps 3-4
 
 Each step is a separate Claude prompt. The skills compose because they don't overlap in scope — taste layer vs verification layer vs specialty knowledge.

@@ -4,17 +4,17 @@ Generic AI sites get caught here: centered hero + 3 equal feature cards + footer
 
 ## The Layout Bans
 
-- **Centered hero with H1 + subtitle + 2 buttons.** Banned when DESIGN_VARIANCE > 4. Use split-screen (50/50), left-aligned content + right asset, or asymmetric whitespace.
+- **The template hero: centered H1 + subtitle + 2 buttons.** Banned. Use split-screen, left-aligned content + right asset, asymmetric whitespace — or a centered composition only when it's deliberate (oversized type, an asset it frames, an asymmetric detail). Low-variance UIs (app screens, dashboards) don't need a hero at all.
 - **3 equal cards in a row** as the features section. Use 2-col zig-zag, asymmetric bento, horizontal scroll, or `divide-y` rows.
 - **Cards inside cards inside cards.** Pick the lowest depth that communicates the hierarchy.
-- **`h-screen`** on full-height sections. Always `min-h-[100dvh]`.
+- **`h-screen` / `100vh`.** Use `min-h-[100dvh]` for viewport-height sections, `h-dvh` for fixed app shells.
 - **Flex math** like `w-[calc(33%-1rem)]`. Use CSS Grid: `grid-cols-3 gap-6`.
 - **Containers wider than `max-w-[1400px]`** without intentional reason.
 - **Default `gap-4`** on every grid. Vary spacing — tighter for data, looser for editorial.
 
 ## Hero Patterns That Don't Suck
 
-### Split screen (default for SaaS)
+### Split screen
 - 50/50 or 60/40
 - Text on left (left-aligned, NOT center), large image/video/visual on right
 - Image bleeds to edge of viewport
@@ -49,27 +49,33 @@ The modern way to show "3-5 things" without 3 equal cards.
 Markup is shown as plain HTML (`className` in JSX).
 
 ```html
-<div class="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-4 max-w-7xl mx-auto p-8">
-  <div class="md:col-span-2 md:row-span-2 rounded-[2.5rem] bg-white p-10 border border-zinc-200/50">
+<div class="grid grid-cols-1 md:grid-cols-3 md:grid-rows-2 gap-4 max-w-7xl mx-auto p-6 md:p-8">
+  <div class="md:col-span-2 md:row-span-2 rounded-[var(--radius)] bg-[var(--surface)] p-6 md:p-10 border border-[var(--border)]">
     <!-- Hero card — biggest -->
   </div>
-  <div class="rounded-[2.5rem] bg-white p-8 border border-zinc-200/50">
+  <div class="rounded-[var(--radius)] bg-[var(--surface)] p-6 md:p-8 border border-[var(--border)]">
     <!-- Top-right -->
   </div>
-  <div class="rounded-[2.5rem] bg-white p-8 border border-zinc-200/50">
+  <div class="rounded-[var(--radius)] bg-[var(--surface)] p-6 md:p-8 border border-[var(--border)]">
     <!-- Bottom-right -->
   </div>
 </div>
 ```
 
+`--radius` is the project's single card radius, chosen per aesthetic (sharp `0`, `14px`, soft `2.5rem`) and recorded in DESIGN.md.
+
+```css
+:root { --radius: 14px; }
+```
+
 ### Bento principles
 
 - **Asymmetric column / row spans** — never 1:1:1
-- **Generous internal padding** — `p-8` minimum, `p-10` for hero cards
-- **Subtle 1px border** in `border-zinc-200/50` (or matched dark equivalent)
+- **Generous internal padding** — `p-6 md:p-8` for cards, `p-6 md:p-10` for the hero card
+- **Subtle 1px border** in `var(--border)`
 - **Diffusion shadow** — wide, low-opacity, tinted
-- **Rounded `[2.5rem]`** — distinctive, not the default `rounded-2xl`
-- **Labels OUTSIDE cards** — title + description below the card, gallery-style
+- **One radius per project** (`var(--radius)`) — distinctive for the aesthetic, not the default `rounded-2xl`
+- **Labels outside or inside** — gallery-style titles below the cards read editorial; titles inside read product. Pick one per project.
 
 See `references/bento-engine.md` for the full Motion-Engine Bento spec.
 
@@ -103,16 +109,16 @@ Any asymmetric / high-variance layout MUST collapse cleanly below `md:`:
 - Display fonts scale down meaningfully (`text-4xl md:text-7xl`)
 - No horizontal scroll allowed under any circumstances
 
-## Dashboard Hardening (VISUAL_DENSITY > 7)
+## Dashboard Hardening (data dashboards — VISUAL_DENSITY ≥ 7)
 
 Dense data UIs should not box every metric in a card.
 
 ### Use these instead of cards:
 
-- **`divide-y divide-zinc-200/60`** between data rows
+- **`divide-y divide-[var(--border)]`** between data rows
 - **`border-t`** to separate sections
 - **Negative space** with monospace numbers
-- **Tabular columns** with `font-mono` and right-aligned numerics
+- **Tabular columns** with `tabular-nums` and right-aligned numerics
 - **Sparklines / trendlines inline** with the metric
 
 ### When to keep cards:
@@ -139,15 +145,10 @@ Don't spam `z-50` and `z-10`. Use a system:
 }
 ```
 
-## Anti-Patterns Checklist
+## Layout Checks
 
-- [ ] No centered hero (when variance > 4)
-- [ ] No 3 equal feature cards in a row
-- [ ] No nested cards beyond depth 1
-- [ ] No `h-screen` (use `min-h-[100dvh]`)
-- [ ] No flex percentage math (use Grid)
-- [ ] All asymmetric layouts collapse cleanly on mobile
-- [ ] No horizontal scroll on any viewport
-- [ ] Spacing varies between sections (not `gap-4` everywhere)
-- [ ] Z-index uses systemic tokens, not random `z-50`s
-- [ ] Containers don't randomly drop to `max-w-md` or `max-w-7xl` without reason
+The shared layout items are in **Final Pre-Flight** (`anti-slop.md`). Also check:
+
+- No page-level horizontal scroll on any viewport (intentional scroll rows and marquees inside `overflow-hidden` are fine)
+- Spacing varies between sections (not `gap-4` everywhere)
+- Z-index uses the token scale above, not random `z-50`s

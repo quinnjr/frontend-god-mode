@@ -1,25 +1,25 @@
 # Bento 2.0 — The Motion-Engine Paradigm
 
-For modern SaaS dashboards and feature sections, this is your default architecture. Vercel-core meets Dribbble-clean. Heavy on perpetual physics.
+For marketing feature sections only — never application or analytics dashboards (those use Dashboard Hardening in `layout.md`). Animated, asymmetric, product-forward.
 
 ## When to Use This
 
 - Modern SaaS landing page "feature row"
 - Product page showcasing 4-6 capabilities
-- Dashboard hero showcasing "what the product does"
+- A landing-page hero panel showcasing "what the product does"
 - Anywhere the brief says: "show off the product features in a modern, animated way"
 
 ## The Aesthetic
 
-**Use the project's tokens from `DESIGN.md` — never hardcode Zinc/Slate/Stone.** Values below are illustrative; replace with the project's actual neutral family.
+**Use the project's tokens from `DESIGN.md` — never hardcode Zinc/Slate/Stone.** Token values live in `color.md`.
 
-- **Background:** the project's `--bg-subtle` (e.g., `oklch(0.985 0.005 H)` where H matches the chosen hue family)
-- **Card surface:** the project's `--surface` (e.g., off-white in light mode, `oklch(0.18 0.005 H)` in dark)
-- **Card border:** `border border-[var(--border)]/60` — token, not literal `border-zinc-200`
-- **Card radius:** `rounded-[2.5rem]` — distinctive, not default `rounded-2xl`
+- **Background:** `var(--bg-subtle)`
+- **Card surface:** `var(--surface)`
+- **Card border:** `border border-[var(--border)]` — token, not literal `border-zinc-200`
+- **Card radius:** `rounded-[var(--radius)]` — the project's one radius, chosen per aesthetic; not the default `rounded-2xl`
 - **Diffusion shadow:** wide + low-opacity + tinted toward bg hue (see `color.md`). NOT `rgba(0,0,0,...)`.
-- **Internal padding:** `p-8 md:p-10`
-- **Title placement:** OUTSIDE and BELOW the cards (gallery-style), not inside
+- **Internal padding:** `p-6 md:p-8` for cards, `p-6 md:p-10` for the hero card
+- **Title placement:** outside and below the cards (gallery-style, editorial) or inside (product) — one choice per project
 
 ## The Grid
 
@@ -48,7 +48,7 @@ Markup is shown as plain HTML. In JSX write `className`; in Vue, Svelte, Angular
 
 ## The 5 Card Archetypes
 
-Each card MUST have a perpetual micro-animation. These are the proven five:
+At MOTION_INTENSITY ≥ 6, each card carries one perpetual micro-animation (below that, a staggered reveal is enough). These are the proven five:
 
 ### 1. The Intelligent List
 
@@ -75,19 +75,22 @@ Implementation: React `<AnimatePresence>` + spring, Vue `<Transition>` and Angul
 
 ### 4. The Wide Data Stream
 
-Horizontal infinite carousel of metric cards. Seamless loop: render the metrics twice and translate by `-50%` with linear timing. Pure CSS (`.marquee` in `motion.md`) — identical in every framework:
+Horizontal infinite carousel of metric cards. Seamless loop: render the metrics twice as two identical groups (trailing padding equal to the gap, so `-50%` lands exactly) and translate by `-50%` with linear timing. Hide the duplicate group from assistive tech. Pure CSS (`.marquee` in `motion.md`) — identical in every framework:
 
 ```html
 <div class="overflow-hidden">
-  <div class="marquee gap-4">
-    <!-- metrics rendered twice; mark the duplicate set aria-hidden="true" -->
+  <div class="marquee">
+    <div class="flex gap-4 pr-4"><!-- metrics --></div>
+    <div class="flex gap-4 pr-4" aria-hidden="true"><!-- the same metrics again --></div>
   </div>
 </div>
 ```
 
 ### 5. The Contextual UI (Focus Mode)
 
-A document/text view that animates a staggered highlight sweeping across a paragraph, followed by a floating action toolbar that "Float-ins" with micro-icons (highlight, comment, summarize).
+A document/text view that animates a staggered highlight sweeping across a paragraph, followed by a floating action toolbar that floats in with micro-icons (highlight, comment, summarize).
+
+Implementation: compose it from two patterns in your framework file — the staggered reveal (mark each highlighted span `data-reveal`, animate a `scaleX` underline from 0 to 1) and enter/leave (the toolbar, with `springSnappy`).
 
 ## Performance — Critical Rules
 
@@ -107,14 +110,14 @@ const springOvershoot = { type: 'spring', stiffness: 300, damping: 12 }; // noti
 
 ## Common Bento Mistakes
 
-- ❌ All cards the same size (1:1:1) — must be asymmetric
-- ❌ No motion in any card — must be alive
-- ❌ Title INSIDE the card — put it OUTSIDE, below
-- ❌ Default `rounded-2xl` — use `rounded-[2.5rem]`
-- ❌ `shadow-md` — use diffusion shadow
-- ❌ Padding under `p-6` — needs to breathe
-- ❌ Putting all 5 archetypes in one section — pick 3-4 max
-- ❌ Same archetype on every card — vary them
+- Bad: all cards the same size (1:1:1) — must be asymmetric
+- Bad: no motion in any card at MOTION_INTENSITY ≥ 6 — must be alive
+- Bad: mixing inside and outside titles in one grid
+- Bad: default `rounded-2xl` — use the project's `--radius`
+- Bad: `shadow-md` — use a diffusion shadow
+- Bad: padding under `p-6` — needs to breathe
+- Bad: all 5 archetypes in one section — pick 3-4 max
+- Bad: the same archetype on every card — vary them
 
 ## Mobile Behavior
 
