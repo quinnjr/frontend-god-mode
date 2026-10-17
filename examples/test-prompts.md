@@ -91,6 +91,29 @@ The skill is designed to pass these prompts without producing generic AI output.
 - Tailwind v4 via `@tailwindcss/vite`, not PostCSS
 - No React dependencies pulled in for React Bits / 21st.dev effects — ported natively
 
+## 8. Nuxt dashboard with live activity feed
+
+> "Add an activity feed panel to this Nuxt dashboard — new events slide in at the top." (run inside a Nuxt 3+ project)
+
+**Expected behavior:**
+- Detects `nuxt`, loads `frameworks/vue.md`
+- `<script setup lang="ts">`, Composition API, no Options API
+- Feed uses `<TransitionGroup>` with `--spring-*` CSS enter/move classes, keyed by event id (not index)
+- Rows separated with `divide-y`, not boxed in cards (dashboard hardening)
+- Polling/timer started in `onMounted`, cleared in `onBeforeUnmount`; no `window` access at `<script setup>` top level
+- Icons via `@phosphor-icons/vue`
+
+## 9. Astro marketing site with a magnetic CTA
+
+> "Build the landing page for this Astro site — bento feature row and a magnetic sign-up button." (run inside an Astro 5+ project with no UI framework integration)
+
+**Expected behavior:**
+- Detects `astro`, loads `frameworks/astro.md`
+- Page is `.astro` components with zero client JS except the custom elements it needs
+- Magnetic CTA and staggered reveal are custom elements (`connectedCallback` / `disconnectedCallback`), not a newly added React/Svelte integration
+- Marquee and perpetual loops are pure CSS
+- Icons via `astro-icon` with `@iconify-json/ph`; Tailwind v4 via `@tailwindcss/vite`
+
 ## How to verify pass/fail
 
 After Claude finishes, ask: **"run the pre-flight checklist from anti-slop.md against what you just built."**
@@ -104,4 +127,4 @@ Common failure modes to catch:
 - Used "Acme" or "John Doe" in sample data
 - Forgot empty / loading state on data UI
 - Linear easing somewhere in CSS transitions
-- Used the wrong framework's idioms (JSX hooks in Svelte, `useState`-style signals for pointer position in Angular)
+- Used the wrong framework's idioms (JSX hooks in Svelte, `useState`-style signals for pointer position in Angular, a hydrated island for CSS-only motion in Astro)

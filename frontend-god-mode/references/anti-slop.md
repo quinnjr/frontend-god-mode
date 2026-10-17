@@ -100,6 +100,22 @@ constructor() { matchMedia('...'); }      // DOM access outside afterNextRender 
 {#each items as item}      <!-- unkeyed each can't animate:flip -->
 ```
 
+```vue
+<!-- ❌ Vue -->
+<script setup>
+const mouseX = ref(0)                    // pointer position in a ref — use the v-magnetic directive
+const w = window.innerWidth              // top-level DOM access breaks SSR — use onMounted
+</script>
+
+<li v-for="(item, i) in items" :key="i"> <!-- index keys break <TransitionGroup> reorder -->
+```
+
+```astro
+<!-- ❌ Astro -->
+<Hero client:load />                     <!-- hydrating a component that only does CSS motion -->
+<script>document.querySelector('.x')</script>  <!-- top-level script: no teardown, dies after a <ClientRouter /> swap — use a custom element -->
+```
+
 ## State Coverage Required
 
 Every data-displaying component MUST have:
@@ -119,7 +135,7 @@ Generic AI output skips empty/error states. **Don't.**
 - [ ] Every animation, interval, listener and observer has teardown
 - [ ] No browser APIs touched during SSR
 - [ ] No animations on `width`/`height`
-- [ ] Perpetual-motion components isolated (React `memo`, Angular `OnPush`, Svelte leaf component)
+- [ ] Perpetual-motion components isolated (React `memo`, Angular `OnPush`, Vue / Svelte leaf component, Astro zero-JS CSS)
 - [ ] No mixing GSAP + motion on the same element tree
 
 ## The Final Pre-Flight (Read Before Saying "Done")

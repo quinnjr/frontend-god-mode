@@ -4,14 +4,15 @@ Don't build everything from scratch. Pull production-quality building blocks fro
 
 ## Libraries Per Framework
 
-| Role                          | React / Next.js        | Svelte / SvelteKit           | Angular                         |
-|-------------------------------|------------------------|------------------------------|---------------------------------|
-| Structural primitives         | shadcn/ui (Radix)      | shadcn-svelte (Bits UI)      | Spartan UI (brain + helm), Angular CDK |
-| Animated text / backgrounds   | React Bits             | Port from React Bits         | Port from React Bits            |
-| Pre-designed marketing blocks | 21st.dev Magic (MCP)   | 21st.dev as design reference, ported | 21st.dev as design reference, ported |
-| Icons                         | `@phosphor-icons/react` | `phosphor-svelte`           | `@ng-icons/phosphor-icons`      |
+| Framework         | Structural primitives                   | Icons                           | React Bits / 21st.dev |
+|-------------------|-----------------------------------------|---------------------------------|-----------------------|
+| React / Next.js   | shadcn/ui (Radix)                       | `@phosphor-icons/react`         | Use directly          |
+| Vue / Nuxt        | shadcn-vue (Reka UI)                    | `@phosphor-icons/vue`           | Port                  |
+| Svelte / SvelteKit| shadcn-svelte (Bits UI)                 | `phosphor-svelte`               | Port                  |
+| Angular           | Spartan UI (brain + helm), Angular CDK  | `@ng-icons/phosphor-icons`      | Port                  |
+| Astro             | `.astro` + Tailwind; native `<dialog>` / popover; the island framework's library for complex primitives | `astro-icon` + `@iconify-json/ph` | Island via `@astrojs/react` if installed, else port |
 
-**Porting rule:** React Bits and 21st.dev emit React. In Svelte and Angular projects, never install React to use them. Read the generated code, keep the Tailwind classes (they transfer 1:1), and rewrite the logic: JSX → template syntax, hooks → runes / signals, `motion.*` props → the shared motion helpers and framework patterns in `frameworks/<framework>.md`.
+**Porting rule:** React Bits and 21st.dev emit React. In non-React projects, never install React to use them (Astro projects that already have `@astrojs/react` can use them as islands). Read the generated code, keep the Tailwind classes (they transfer 1:1), and rewrite the logic: JSX → template syntax, hooks → refs / runes / signals / custom elements, `motion.*` props → the shared motion helpers and framework patterns in `frameworks/<framework>.md`.
 
 ## The Libraries
 
@@ -59,7 +60,7 @@ After installing the MCP, just ask in plain English:
 
 > "use 21st-dev magic to add a sticky navbar with a search command palette"
 
-The MCP returns the component code. **Don't paste it raw** — apply your project's color tokens, font tokens, and motion patterns before committing. In Svelte / Angular projects, port it per the porting rule above.
+The MCP returns the component code. **Don't paste it raw** — apply your project's color tokens, font tokens, and motion patterns before committing. In non-React projects, port it per the porting rule above.
 
 #### Install (MCP setup in `~/.claude.json`)
 
@@ -73,14 +74,14 @@ The MCP returns the component code. **Don't paste it raw** — apply your projec
 
 Get the API key at https://21st.dev/magic/console (free tier exists).
 
-### 3. Structural primitives — shadcn/ui, shadcn-svelte, Spartan
+### 3. Structural primitives — shadcn/ui, shadcn-vue, shadcn-svelte, Spartan
 
-The base layer for forms, dialogs, dropdowns, tables. All three follow the shadcn model: the styled code is copied into your repo, so you own it. **Never use defaults.** Always customize:
+The base layer for forms, dialogs, dropdowns, tables. All four follow the shadcn model: the styled code is copied into your repo, so you own it. **Never use defaults.** Always customize:
 
 - **Radii:** Default `rounded-md` is dead. Use `rounded-[14px]` or `rounded-[2.5rem]`.
 - **Colors:** Override the CSS variables in the global stylesheet to match your project palette.
 - **Shadows:** Replace the default `shadow-md` with tinted diffusion shadows.
-- **Motion:** Give dialogs/popovers spring enter/exit (React: motion variants; Angular: `animate.enter`/`animate.leave` + `--spring-*`; Svelte: `in:`/`out:` with spring easings).
+- **Motion:** Give dialogs/popovers spring enter/exit (React: motion variants; Vue: `<Transition>` + `--spring-*`; Svelte: `in:`/`out:` with spring easings; Angular: `animate.enter`/`animate.leave` + `--spring-*`; Astro: `<dialog>` / popover with `--spring-*` CSS).
 
 #### Install
 
@@ -88,6 +89,10 @@ The base layer for forms, dialogs, dropdowns, tables. All three follow the shadc
 # React
 shadcn@latest init
 shadcn@latest add button input dialog dropdown-menu
+
+# Vue
+shadcn-vue@latest init
+shadcn-vue@latest add button input dialog dropdown-menu
 
 # Svelte
 shadcn-svelte@latest init
@@ -101,12 +106,12 @@ Angular CDK (`@angular/cdk`) supplies behavior — overlays, focus trapping, liv
 
 ## Decision Tree
 
-| Need                                     | React                | Svelte / Angular                       |
+| Need                                     | React                | Vue / Svelte / Angular / Astro         |
 |------------------------------------------|----------------------|----------------------------------------|
 | Hero text with kinetic effect            | React Bits           | Port a React Bits effect               |
 | Animated background atmosphere           | React Bits           | React Bits Tools export, or port       |
 | Standard navbar / pricing / hero layout  | 21st.dev Magic       | 21st.dev as reference, ported          |
-| Form field, dialog, dropdown, table      | shadcn (customized)  | shadcn-svelte / Spartan (customized)   |
+| Form field, dialog, dropdown, table      | shadcn (customized)  | shadcn-vue / shadcn-svelte / Spartan, or an Astro island (customized) |
 | Bento grid feature section               | Build from scratch (see `bento-engine.md`) | Same                |
 | Marketing hero (split / asymmetric)      | Build from scratch (see `layout.md`) | Same                       |
 | Feature row with motion                  | Build from scratch + React Bits accents | Build from scratch + ported accents |
@@ -126,16 +131,16 @@ Angular CDK (`@angular/cdk`) supplies behavior — overlays, focus trapping, liv
 
 ## Anti-Patterns
 
-- ❌ Using default shadcn / shadcn-svelte / Spartan unmodified (looks like every other shadcn site)
+- ❌ Using default shadcn / shadcn-vue / shadcn-svelte / Spartan unmodified (looks like every other shadcn site)
 - ❌ Pasting 21st.dev components without retokenizing colors/fonts
-- ❌ Installing React into a Svelte or Angular project to use a React component
+- ❌ Installing React into a Vue, Svelte, Angular or Astro project to use a React component
 - ❌ Mixing 5+ component libraries in one project (visual chaos)
 - ❌ Pulling animated backgrounds AND complex orchestrated animations on the same screen (motion overload)
 - ❌ Using component library defaults when the brief was "premium / distinctive"
 
 ## Recommended Stack Per Project Type
 
-"Primitives" = shadcn / shadcn-svelte / Spartan. In Svelte and Angular, the 21st.dev and React Bits columns mean "ported".
+"Primitives" = shadcn / shadcn-vue / shadcn-svelte / Spartan (Astro: the island framework's port, or native elements). Outside React, the 21st.dev and React Bits columns mean "ported".
 
 | Project type        | Primitives | 21st.dev | React Bits | Custom % |
 |---------------------|---------|----------|------------|----------|

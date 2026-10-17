@@ -26,7 +26,7 @@ Stop here if Node is missing.
 
 Then detect, silently, what the rest of the walkthrough adapts to:
 
-- **Framework** from `package.json`: `@angular/core` → Angular, `svelte` / `@sveltejs/kit` → Svelte, `react` → React. No `package.json` yet → ask once: "Which framework do you want — React (Next.js), Svelte (SvelteKit), or Angular?" Default to Next.js if they don't care.
+- **Framework** from `package.json` (first match wins): `astro` → Astro, `@angular/core` → Angular, `nuxt` / `vue` → Vue, `svelte` / `@sveltejs/kit` → Svelte, `react` → React. No `package.json` yet → ask once: "Which framework do you want — React (Next.js), Vue (Nuxt), Svelte (SvelteKit), Angular, or Astro?" Default to Next.js if they don't care.
 - **Package manager** from the lockfile: `pnpm-lock.yaml` → pnpm, `yarn.lock` → yarn, `bun.lock` → bun, else npm. Use it for every command below: `<pm>` means the package manager, `<runner>` its one-off runner (`pnpm dlx` / `yarn dlx` / `bunx` / `npx`).
 
 ---
@@ -59,7 +59,7 @@ Tell them:
 >
 > Installing now...
 
-Run the **Setup Install** command from `references/frameworks/<framework>.md`. It installs `motion` (one package for every framework — React uses `motion/react`, Svelte and Angular use the vanilla `motion` API) plus the framework's font and icon packages. For React that's:
+Run the **Setup Install** command from `references/frameworks/<framework>.md`. It installs `motion` (one package for every framework — React uses `motion/react`, every other framework uses the vanilla `motion` API) plus the framework's font and icon packages. For React that's:
 ```bash
 <pm> add motion 2>&1
 ```
@@ -85,7 +85,7 @@ If `package.json` already has `framer-motion`, skip the install — it's the sam
 >
 > when we're building. Nothing for you to do here. Continuing.
 
-**Svelte or Angular projects** — tell them:
+**Vue, Svelte, Angular or Astro projects** (Astro with `@astrojs/react` counts as React here) — tell them:
 
 > **Step 3 of 4: Animated components**
 >
@@ -97,7 +97,7 @@ If `package.json` already has `framer-motion`, skip the install — it's the sam
 
 ## Step 4 of 4 — 21st.dev Magic
 
-**Svelte or Angular projects:** 21st.dev generates React code. Make this step optional — tell them "21st.dev is a library of pre-designed React components. I can still use it as a design reference and rebuild what you pick for your framework. Want to set it up? (Totally fine to skip.)" If they skip, go to Step 5.
+**Non-React projects:** 21st.dev generates React code. Make this step optional — tell them "21st.dev is a library of pre-designed React components. I can still use it as a design reference and rebuild what you pick for your framework. Want to set it up? (Totally fine to skip.)" If they skip, go to Step 5.
 
 Tell them:
 
@@ -160,7 +160,7 @@ Tell them:
 >
 > - **UI/UX Pro Max** — 50+ styles, 161 palettes, 57 font pairings
 > - **Motion** — production-grade animations
-> - **React Bits** — 110+ animated components, ready via shadcn *(React; on Svelte/Angular say "native ports of animated effects, on demand")*
+> - **React Bits** — 110+ animated components, ready via shadcn *(React; elsewhere say "native ports of animated effects, on demand")*
 > - **21st.dev Magic** — 100+ production components via MCP *(omit if skipped)*
 >
 > Plus, this skill itself (frontend-god-mode) gives me the taste rules to use them well — typography, color, layout, motion, anti-slop guards.

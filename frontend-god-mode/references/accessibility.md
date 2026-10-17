@@ -98,7 +98,7 @@ Don't use `<div>` for everything.
 Already covered in motion.md, but double-check that JS-driven motion checks the preference:
 
 - **React:** `useReducedMotion()` from `motion/react`
-- **Angular:** `prefersReducedMotion()` from the shared motion helpers
+- **Vue / Angular / Astro:** `prefersReducedMotion()` from the shared motion helpers
 - **Svelte:** `prefersReducedMotion.current` from `svelte/motion`
 
 Disable or shorten animations when it's true.

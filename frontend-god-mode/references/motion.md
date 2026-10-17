@@ -13,7 +13,7 @@ The rules and numbers here apply to every framework. The framework-specific impl
 
 ## The Spring Defaults
 
-Every framework uses these exact physics. In JS, pass them to `motion` (React: `motion/react`; Angular/Svelte: the vanilla `motion` package):
+Every framework uses these exact physics. In JS, pass them to `motion` (React: `motion/react`; Vue, Svelte, Angular, Astro: the vanilla `motion` package):
 
 ```ts
 const springSnappy = { type: 'spring', stiffness: 400, damping: 30 };  // buttons, taps
@@ -24,7 +24,7 @@ const springOvershoot = { type: 'spring', stiffness: 300, damping: 12 }; // badg
 
 ### CSS springs (same physics, zero JS)
 
-For CSS transitions, keyframes, Angular `animate.enter`/`animate.leave`, and Svelte CSS transitions, use the same springs pre-sampled into `linear()` curves. Put these in the global stylesheet:
+For CSS transitions, keyframes, Vue `<Transition>`/`<TransitionGroup>`, and Angular `animate.enter`/`animate.leave`, use the same springs pre-sampled into `linear()` curves. Put these in the global stylesheet:
 
 ```css
 :root {
@@ -51,9 +51,9 @@ For simple hover/state transitions, the premium cubic-bezier is fine:
 }
 ```
 
-## Shared Motion Helpers (Angular, Svelte, vanilla)
+## Shared Motion Helpers (Vue, Svelte, Angular, Astro, vanilla)
 
-React uses `motion/react` components directly (see `frameworks/react.md`). Every other framework uses these framework-free helpers built on the vanilla `motion` package, wrapped in the framework's lifecycle (Angular directive, Svelte attachment). Create `motion.ts` (SvelteKit: `src/lib/motion.ts`; Angular: `src/app/lib/motion.ts`):
+React uses `motion/react` components directly (see `frameworks/react.md`). Every other framework uses these framework-free helpers built on the vanilla `motion` package, wrapped in the framework's lifecycle (Vue directive, Svelte attachment, Angular directive, Astro custom element). Create `motion.ts` (Vue, SvelteKit, Astro: `src/lib/motion.ts`; Nuxt: `lib/motion.ts`; Angular: `src/app/lib/motion.ts`):
 
 ```ts
 import { animate, inView, stagger } from 'motion';
@@ -110,7 +110,7 @@ Pair `reveal()` with this CSS so items start hidden only when JS will actually r
 Never mount lists or grids instantly. Stagger them: `0.08s` between children, `0.1s` initial delay, `springSmooth`, rising `20px`.
 
 - **React:** parent/child `variants` with `staggerChildren` — see `frameworks/react.md`.
-- **Angular / Svelte:** mark children `data-reveal` and run `reveal()` on the parent — see the framework file.
+- **Vue / Svelte / Angular / Astro:** mark children `data-reveal` and run `reveal()` on the parent (directive / attachment / directive / custom element) — see the framework file.
 
 ### CSS-only fallback
 
@@ -129,10 +129,10 @@ Never mount lists or grids instantly. Stagger them: `0.08s` between children, `0
 
 ## Magnetic Button Pattern
 
-Buttons that pull subtly toward the cursor. **CRITICAL:** the pointer position must never go through framework state (React `useState`, an Angular signal bound in a template, a Svelte `$state` that re-renders a component). Write transforms directly via motion values or `animate()`. State updates on every mouse move collapse mobile performance.
+Buttons that pull subtly toward the cursor. **CRITICAL:** the pointer position must never go through framework state (React `useState`, a Vue `ref` bound to `:style`, a Svelte `$state`, an Angular signal bound in a template). Write transforms directly via motion values or `animate()`. State updates on every mouse move collapse mobile performance.
 
 - **React:** `useMotionValue` + `useSpring` — see `frameworks/react.md`.
-- **Angular / Svelte:** `magnetic()` helper above, wrapped in a directive / attachment.
+- **Vue / Svelte / Angular / Astro:** `magnetic()` helper above, wrapped in a directive / attachment / directive / custom element.
 
 ## Tactile Feedback (`:active`)
 
@@ -149,8 +149,10 @@ React can use `whileTap={{ scale: 0.98, y: 1 }}` instead.
 Re-ordering lists, expand-to-modal morphs, and shared elements must animate position (FLIP: measure → update → invert → play with `transform`). Never let items teleport.
 
 - **React:** `layout` / `layoutId`.
+- **Vue:** `<TransitionGroup>` with a `move` class.
 - **Svelte:** `animate:flip` on keyed `{#each}` children.
 - **Angular:** measure-and-play FLIP with `afterNextRender` + `animate()`.
+- **Astro:** measure-and-play FLIP inside a custom element; `transition:name` for shared elements across pages.
 
 Each pattern is in its framework file.
 
@@ -200,14 +202,14 @@ For complex scrolltelling beyond motion (parallax sequences, ScrollTrigger pinni
 
 - **DOM cost:** Apply grain/noise filters only to fixed `pointer-events-none` overlays. Never on scrolling containers.
 - **`will-change: transform`** sparingly — only on elements actively animating.
-- **Teardown everything.** Every `animate()` / `inView()` / `scroll()` / interval / listener / GSAP context is undone when its component is destroyed. React: `useEffect` return. Angular: `DestroyRef.onDestroy`. Svelte: return from the attachment / `$effect` / `onMount`.
-- **Browser-only code runs after mount.** Never touch `window`, `matchMedia`, or `getBoundingClientRect` during SSR. React: client components + effects. Angular: `afterNextRender`. Svelte: attachments / `$effect` / `onMount`.
-- **Isolate perpetual-motion components** so they never re-render their parents (React `memo`, Angular `OnPush`, Svelte gets this for free with fine-grained reactivity).
-- **Exit animations** for items that unmount: React `<AnimatePresence mode="popLayout">`, Angular `animate.leave`, Svelte `out:` transitions.
+- **Teardown everything.** Every `animate()` / `inView()` / `scroll()` / interval / listener / GSAP context is undone when its component is destroyed. React: `useEffect` return. Vue: `onBeforeUnmount` / directive `beforeUnmount`. Svelte: return from the attachment / `$effect` / `onMount`. Angular: `DestroyRef.onDestroy`. Astro: `disconnectedCallback`.
+- **Browser-only code runs after mount.** Never touch `window`, `matchMedia`, or `getBoundingClientRect` during SSR. React: client components + effects. Vue: `onMounted` / directive `mounted`. Svelte: attachments / `$effect` / `onMount`. Angular: `afterNextRender`. Astro: custom element `connectedCallback`.
+- **Isolate perpetual-motion components** so they never re-render their parents (React `memo`, Angular `OnPush`, Vue leaf components, Svelte gets this for free with fine-grained reactivity, Astro ships no framework re-renders at all).
+- **Exit animations** for items that unmount: React `<AnimatePresence mode="popLayout">`, Vue `<Transition>`, Svelte `out:` transitions, Angular `animate.leave`, Astro `animate()` then `hidden`.
 
 ## Reduced Motion
 
-Always respect it. The global CSS guard covers CSS transitions, keyframes, Angular `animate.enter`/`animate.leave` and Svelte CSS transitions:
+Always respect it. The global CSS guard covers CSS transitions, keyframes, Vue `<Transition>`/`<TransitionGroup>` and Angular `animate.enter`/`animate.leave`:
 
 ```css
 @media (prefers-reduced-motion: reduce) {
@@ -219,7 +221,7 @@ Always respect it. The global CSS guard covers CSS transitions, keyframes, Angul
 }
 ```
 
-JS-driven motion runs through the Web Animations API or inline styles, which that guard doesn't touch, so it must check the preference itself. React: `useReducedMotion()`. Angular: `prefersReducedMotion()` from the shared helpers. Svelte: `prefersReducedMotion.current` from `svelte/motion`.
+JS-driven motion runs through the Web Animations API or inline styles, which that guard doesn't touch, so it must check the preference itself. React: `useReducedMotion()`. Vue, Angular, Astro: `prefersReducedMotion()` from the shared helpers. Svelte: `prefersReducedMotion.current` from `svelte/motion`.
 
 ## Anti-Patterns
 
