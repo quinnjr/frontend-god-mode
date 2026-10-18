@@ -75,9 +75,13 @@ Banned in this project: regular Inter, Roboto, Arial, system-ui as primary, seri
 }
 
 @media (prefers-color-scheme: dark) {
-  :root { /* same names, dark values */ }
+  :root:not([data-theme="light"]) { /* same names, dark values */ }
 }
+
+:root[data-theme="dark"] { /* same dark values */ }
 ```
+
+Primary mode: <light | dark — from the content table in color.md (Theme Follows Content)>.
 
 Banned in this project:
 - Pure #000 / #FFF (use the tinted neutrals above)

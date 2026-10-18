@@ -187,6 +187,29 @@ CSS guard from `motion.md` in the global stylesheet (covers `<Transition>` and `
 - **Command Input typewriter:** a `ref` for the visible text, advanced by a timer started in `onMounted` and cleared in `onBeforeUnmount`, in its own leaf component.
 - **Contextual UI:** compose `v-reveal` over the highlight spans with a `<Transition>` toolbar (`--spring-snappy`).
 
+## Theme Script
+
+The pre-paint theme script from `color.md` (Theme Follows Content) goes inline in the document `<head>`, before any stylesheet. Never load it as a module or from a component — by then the page has already painted in the wrong mode.
+
+**Vite / SPA Vue:** paste the script into `index.html`'s `<head>` as-is.
+
+**Nuxt:** register it in `nuxt.config`. Never set `data-theme` through `useHead({ htmlAttrs })` — the server has no access to `localStorage`, so it renders the wrong value and overwrites the script's choice.
+
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+  app: {
+    head: {
+      meta: [{ name: 'color-scheme', content: 'light dark' }],
+      script: [{
+        tagPosition: 'head',
+        innerHTML: `try{const t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch{}`,
+      }],
+    },
+  },
+});
+```
+
 ## Fonts
 
 Self-host with Fontsource. The example uses Geist — install and import the pairing you actually chose from `typography.md` (Fontsource package names are `@fontsource-variable/<family>` for variable fonts, `@fontsource/<family>` otherwise). Fontshare and paid fonts: self-host the woff2 with `@font-face`.

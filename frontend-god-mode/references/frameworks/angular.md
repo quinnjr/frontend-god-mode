@@ -201,6 +201,25 @@ CSS guard from `motion.md` in `styles.css`, plus `prefersReducedMotion()` before
 - **Command Input typewriter:** a signal for the visible text, advanced by a timer started in `afterNextRender` and cleared on destroy. It's the only archetype that updates a signal per tick; keep it in its own `OnPush` leaf.
 - **Contextual UI:** compose `appReveal` over the highlight spans with an `animate.enter` toolbar (`--spring-snappy`).
 
+## Theme Script
+
+The pre-paint theme script from `color.md` (Theme Follows Content) goes inline in the document `<head>`, before any stylesheet. Never load it as a module or from a component — by then the page has already painted in the wrong mode.
+
+Paste it into `src/index.html`'s `<head>`. Angular hydration starts at the root component, never at `<html>`, so the attribute survives SSR.
+
+```html
+<!-- src/index.html -->
+<head>
+  <meta name="color-scheme" content="light dark" />
+  <script>
+    try {
+      const t = localStorage.getItem('theme');
+      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    } catch {}
+  </script>
+</head>
+```
+
 ## Fonts
 
 Self-host with Fontsource. Never a Google Fonts `<link>` in `index.html` for production builds. The example uses Geist — install and import the pairing you actually chose from `typography.md` (Fontsource package names are `@fontsource-variable/<family>` for variable fonts, `@fontsource/<family>` otherwise). Fontshare and paid fonts: self-host the woff2 with `@font-face`.

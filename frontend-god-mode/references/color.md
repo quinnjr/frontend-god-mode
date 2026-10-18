@@ -111,7 +111,91 @@ Default `box-shadow: 0 0 black` is dead. Tint shadows toward the background hue.
 - **Don't use pure black backgrounds.** Use `oklch(0.12 0.005 H)` where H matches your hue family.
 - **Borders need to lift.** `oklch(0.22 0.005 H)` is your `border` token in dark mode.
 - **Accents get lighter in dark mode, not more saturated.** Raise lightness to ~0.70–0.78 and keep chroma ≤ 0.15 so the color stays in gamut (see the dark column above; check new values at oklch.com).
-- **Avoid white-on-black.** Use `oklch(0.96 0.005 H)` for body text, matched to the background tint.
+- **Avoid white-on-black.** Use `oklch(0.96 0.005 H)` for UI text and headings, matched to the background tint; long-form body text goes lower (Theme Follows Content, below).
+
+## Theme Follows Content
+
+Light and dark are not a toggle bolted on at the end. The content decides which mode you design first, and every content type — photos, code, diagrams, embeds, long text — needs its own handling in both modes.
+
+### Pick the primary mode from the content
+
+Ship both modes on every site. The primary mode is the one you design and review first, the one screenshots and OG images use, and the one `:root` holds before any preference is known.
+
+| Content                                                        | Primary mode | Why                                                       |
+|----------------------------------------------------------------|--------------|-----------------------------------------------------------|
+| Long-form reading, docs, blogs, editorial, news                | Light        | Dark text on light reads faster over long sessions        |
+| E-commerce, product photography on white, food, real estate    | Light        | Product shots are lit and color-corrected for light pages |
+| Forms, checkout, finance, legal, health, government            | Light        | Users scan dense fields; light reads as trustworthy here  |
+| Developer tools, code-heavy pages, terminals, APIs             | Dark         | Matches the editor the audience lives in                  |
+| Film, music, video, games, photography portfolios, galleries   | Dark         | Dark surround makes imagery the brightest thing on screen |
+| Monitoring dashboards, trading screens, all-day tools          | Dark         | Less glare on always-on screens                           |
+| Marketing site for a product                                   | Product's    | The site previews the product                             |
+
+A mixed site (dev-tool marketing with a docs section) uses one primary mode site-wide. Never flip modes between pages.
+
+### Wire both modes with a manual override
+
+`prefers-color-scheme` alone is not enough — users need a toggle, and the toggle must beat the OS setting. The media query applies the dark tokens unless the user picked light, and `[data-theme="dark"]` applies them on demand.
+
+```css
+:root {
+  color-scheme: light dark;            /* native controls, scrollbars, autofill follow the mode */
+  /* light tokens (canonical set above) */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    /* dark tokens */
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  /* dark tokens — identical values to the block above */
+}
+
+:root[data-theme="light"] { color-scheme: light; }
+```
+
+For a dark-primary site, swap the roles: dark tokens on `:root`, light tokens under `@media (prefers-color-scheme: light)` guarded by `:root:not([data-theme="dark"])` and again under `:root[data-theme="light"]`.
+
+Set the attribute before first paint so the page never flashes the wrong mode. Put this inline in `<head>`, before any stylesheet, not in a deferred bundle (where each framework puts it: the **Theme Script** section of its file in `frameworks/`):
+
+```html
+<meta name="color-scheme" content="light dark">
+<script>
+  try {
+    const t = localStorage.getItem("theme");
+    if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+  } catch {}
+</script>
+```
+
+The toggle writes `localStorage.theme` and `document.documentElement.dataset.theme`; "System" removes both. Offer exactly three choices — Light, Dark, System — and default to System.
+
+Theme through the tokens, never with Tailwind's `dark:` variant. `dark:` follows only the OS by default, so it silently ignores the toggle; the tokens already switch, so `bg-[var(--surface)]` (or an `@theme inline` color mapped to the token) needs no variant at all.
+
+### Make every content type work in both modes
+
+- **Photos.** Never invert or filter photography. A product shot cut out on white glows as a raw rectangle in dark mode: give it a deliberate light plate in both modes (`oklch(0.96 0.005 H)` with the project radius) so it reads as a designed tile, not a hole. Give image cards a 1px `--border` in dark mode.
+- **Logos, diagrams, screenshots, illustrations.** Ship a dark variant of anything with dark lines on a transparent background — it vanishes on a dark page. Swap with `<picture>`:
+
+  ```html
+  <picture>
+    <source srcset="/diagram-dark.svg" media="(prefers-color-scheme: dark)">
+    <img src="/diagram-light.svg" alt="Request flow from edge cache to origin">
+  </picture>
+  ```
+
+  `<picture>` follows the OS, not the manual toggle. When the site has a toggle, render both images and hide one with `[data-theme]`-aware CSS, or inline the SVG and draw it with `currentColor` and the color tokens so it themes for free.
+- **Product screenshots.** Show the screenshot that matches the current mode. A light-mode screenshot on a dark page reads as a hole in the layout.
+- **Code blocks.** Use a paired syntax theme so code changes with the page — one theme family with a light and dark variant (e.g. Shiki's `themes: { light: "github-light", dark: "github-dark-dimmed" }`). The code surface uses `--bg-subtle` in both modes. Never leave a dark code block on a light page as the only dark element.
+- **Long-form text in dark mode.** Drop body text to `oklch(0.88 0.005 H)` and raise line-height by 0.05 — near-white text on a dark ground halates over long passages. Keep `--fg` at 0.96 for headings and UI.
+- **Embeds and third-party widgets.** Pass the current mode to every embed that accepts one (maps, video players, code sandboxes, payment and auth widgets, social posts). An embed stuck in light mode inside a dark page is the most visible theming bug.
+- **Charts and data viz.** Each series color needs a light and a dark value, built the same way as the accent (raise lightness, cap chroma). Gridlines use `--border`; labels use `--muted`.
+- **Elevation.** Shadows disappear on dark backgrounds. In dark mode, show elevation by stepping up the surface lightness (`--bg` → `--surface` → a raised surface ~0.04 L brighter) and keep a 1px `--border`; keep the tinted shadow for light mode only.
+- **Tint toward the content.** Pick the neutral hue `H` from the dominant content, not from a default: warm (H ≈ 50–70) for food, hospitality, editorial photography; cool (H ≈ 250–285) for software, finance, data. In dark mode this tint is what keeps the page from feeling like a generic black template.
 
 ## Status Colors
 

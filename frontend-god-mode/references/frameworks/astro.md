@@ -188,6 +188,29 @@ CSS guard from `motion.md` in the global stylesheet, plus `prefersReducedMotion(
 - **Command Input typewriter:** a custom element that writes `textContent` from a timer, cleared in `disconnectedCallback`.
 - **Contextual UI:** a `<reveal-group>` over the highlight spans plus a custom element that shows the toolbar with `animate()` and `springSnappy`.
 
+## Theme Script
+
+The pre-paint theme script from `color.md` (Theme Follows Content) goes inline in the document `<head>`, before any stylesheet. Never load it as a module or from a component — by then the page has already painted in the wrong mode.
+
+Put it in the base layout's `<head>` with `is:inline` so Astro doesn't bundle and defer it. With `<ClientRouter />`, each navigation swaps in the new page's `<html>` attributes and drops `data-theme`, so re-apply it on `astro:after-swap`:
+
+```astro
+<!-- src/layouts/Base.astro -->
+<head>
+  <meta name="color-scheme" content="light dark" />
+  <script is:inline>
+    function applyTheme() {
+      try {
+        const t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {}
+    }
+    applyTheme();
+    document.addEventListener('astro:after-swap', applyTheme);
+  </script>
+</head>
+```
+
 ## Fonts
 
 Self-host with Fontsource. The example uses Geist — install and import the pairing you actually chose from `typography.md` (Fontsource package names are `@fontsource-variable/<family>` for variable fonts, `@fontsource/<family>` otherwise). Fontshare and paid fonts: self-host the woff2 with `@font-face`.
