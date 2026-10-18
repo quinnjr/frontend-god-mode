@@ -170,6 +170,26 @@ CSS guard from `motion.md` in `src/app.css`, `prefersReducedMotion.current` (fro
 - **Command Input typewriter:** `$state` for the visible text, advanced by a timer in `$effect` with cleanup, in its own leaf component.
 - **Contextual UI:** compose `{@attach reveal}` over the highlight spans with an `in:`/`out:` toolbar (`snappy` easing).
 
+## Theme Script
+
+The pre-paint theme script from `color.md` (Theme Follows Content) goes inline in the document `<head>`, before any stylesheet. Never load it as a module or from a component — by then the page has already painted in the wrong mode.
+
+Paste it into `src/app.html`, above `%sveltekit.head%`. SvelteKit never hydrates `<html>`, so the attribute survives.
+
+```html
+<!-- src/app.html -->
+<head>
+  <meta name="color-scheme" content="light dark" />
+  <script>
+    try {
+      const t = localStorage.getItem('theme');
+      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    } catch {}
+  </script>
+  %sveltekit.head%
+</head>
+```
+
 ## Fonts
 
 Self-host with Fontsource. The example uses Geist — install and import the pairing you actually chose from `typography.md` (Fontsource package names are `@fontsource-variable/<family>` for variable fonts, `@fontsource/<family>` otherwise). Fontshare and paid fonts: self-host the woff2 with `@font-face`.

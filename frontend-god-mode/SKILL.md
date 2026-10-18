@@ -56,7 +56,7 @@ Load only what the task needs:
 |-------------------------------------------------|-----------------------------------------------------|
 | Writing any component code                      | `references/frameworks/<framework>.md`              |
 | Picking fonts, sizing, hierarchy                | `references/typography.md`                          |
-| Picking palette, accents, dark mode             | `references/color.md`                               |
+| Picking palette, accents, light/dark theming    | `references/color.md`                               |
 | Adding animations, transitions, micro-physics   | `references/motion.md`                              |
 | Spacing, grids, hero structure                  | `references/layout.md`                              |
 | Pulling pre-built components                    | `references/components.md`                          |

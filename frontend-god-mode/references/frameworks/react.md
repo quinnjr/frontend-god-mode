@@ -236,6 +236,31 @@ A `useState` string for the visible text, advanced by a timer started in `useEff
 
 Compose it from the staggered reveal (highlight spans) and `AnimatePresence` (the floating toolbar, `springSnappy`).
 
+## Theme Script
+
+The pre-paint theme script from `color.md` (Theme Follows Content) goes inline in the document `<head>`, before any stylesheet. Never load it as a module or from a component — by then the page has already painted in the wrong mode.
+
+**Next.js:** inline it in the root layout and add `suppressHydrationWarning` to `<html>`, because the script changes `data-theme` before React hydrates:
+
+```tsx
+// app/layout.tsx
+const themeScript = `try{const t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch{}`;
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="color-scheme" content="light dark" />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+**Vite / SPA React:** paste the script into `index.html`'s `<head>` as-is.
+
 ## Fonts
 
 The example uses Geist — load the pairing you actually chose from `typography.md`.

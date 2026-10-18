@@ -144,6 +144,7 @@ COLOR
 [ ] One accent (OKLCH chroma ≤ 0.18), or a curated 3-color palette for a maximalist brief
 [ ] Accent hue distinct from the status colors; shadows tinted, never pure black
 [ ] Body text ≥ 4.5:1 — on a light bg, body text L ≤ 0.55; on dark, L ≥ 0.70 (accessibility.md)
+[ ] Both modes ship with a Light / Dark / System toggle and no flash; images, code, embeds and charts checked in both (color.md)
 
 LAYOUT
 [ ] No template hero, no 3 equal feature cards, no cards nested past depth 1
